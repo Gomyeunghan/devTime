@@ -1,0 +1,23 @@
+:root {
+    --primary-color: #4c79ff;
+    --secondary-color: #023e99;
+    --gray-50: #f9fafb;
+    --gray-100: #f0f2f5;
+    --gray-200: #e5e7eb;
+    --gray-300: #ccd0d6;
+    --gray-400: #969da8;
+    --gray-500: #717887;
+    --gray-600: #4b5563;
+    --gray-700: #394252;
+    --gray-800: #1f2937;
+    --shadow1: #ffffff;
+    --shadow2: #1f2937;
+    --disabled: #969da8;
+    --font-base: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", Arial,
+        sans-serif;
+}
+html,
+body {
+    font-family: var(--font-base);
+}
