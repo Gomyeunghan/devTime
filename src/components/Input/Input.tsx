@@ -12,9 +12,9 @@ function Input({
     feedBackText?: string;
 }) {
     return (
-        <>
+        <div className={S.container}>
             <div>{inputLabel}</div>
-            <div className={`${S.button} ${isValid ? "" : S.wrong}`}>
+            <div className={`${S.input} ${isValid ? "" : S.wrong}`}>
                 <input type="text" placeholder={placeholder} />
             </div>
             <span
@@ -22,7 +22,7 @@ function Input({
             >
                 {feedBackText}
             </span>
-        </>
+        </div>
     );
 }
 export default Input;
