@@ -1,0 +1,11 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 328px;
+    max-height: 48px;
+    background: var(--primary-color);
+    border-radius: 5px;
+    color: white;
+    padding: 16px 24px;
+}

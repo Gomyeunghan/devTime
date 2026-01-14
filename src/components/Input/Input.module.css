@@ -1,0 +1,30 @@
+.button {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    max-width: 328px;
+    max-height: 48px;
+    background: var(--gray-100);
+    border-radius: 5px;
+    color: var(--gray-900);
+    padding: 10px 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--gray-100);
+}
+.button.wrong {
+    border: 1px solid var(--feedBackRed);
+}
+.feedBackText {
+    min-height: 20px;
+    font-size: 12px;
+    margin-top: 5px;
+    visibility: visible;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.feedBackText.wrong {
+    color: var(--feedBackRed);
+}
+.feedBackText.hidden {
+    visibility: hidden;
+}
