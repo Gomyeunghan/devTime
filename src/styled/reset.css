@@ -142,3 +142,14 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
+/* 9. 전체 화면 레이아웃을 위한 설정 추가 */
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}
