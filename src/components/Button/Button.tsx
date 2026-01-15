@@ -4,13 +4,25 @@ function Button({
     children,
     onClick,
     disabled,
+    variant,
 }: {
     children: React.ReactNode;
-    onClick?: () => void;
+    onClick?: any;
     disabled?: boolean;
+    variant: "primary" | "secondary";
 }) {
-    return (
+    return variant === "primary" ? (
         <div className={`${S.container} ${disabled ? S.disabled : ""}`}>
+            <button onClick={onClick} disabled={disabled}>
+                {children}
+            </button>
+        </div>
+    ) : (
+        <div
+            className={`${S.container} ${S.ghost} ${
+                disabled ? S.disabled : ""
+            }`}
+        >
             <button onClick={onClick} disabled={disabled}>
                 {children}
             </button>
