@@ -22,7 +22,7 @@
     font: weight 500px;
     color: white;
 }
-.sigUpContainer {
+.signupContainer {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,7 +30,7 @@
     flex: 1;
     background: white;
 }
-.sigUpContainer h1 {
+.signupContainer h1 {
     color: var(--primary-color);
 }
 .formWrapper {
