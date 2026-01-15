@@ -9,6 +9,10 @@ function Login() {
     const isClick = () => {
         console.log("Clicked");
     };
+
+    const onChangeInput = (e: InputEvent) => {
+        console.log("e : ", e);
+    };
     return (
         <>
             <div className={S.container}>
@@ -26,12 +30,16 @@ function Login() {
                         placeholder="이메일 주소를 입력해주세요"
                         inputLabel="아이디"
                         feedBackText="아매알 형식으로 작성해 주세요."
+                        onChanage={onChangeInput(e)}
+                        type="email"
                     />
                     <Input
                         isValid={true}
                         placeholder="비밀번호를 입력해 주세요"
                         inputLabel="비밀번호"
                         feedBackText="아매알 형식으로 작성해 주세요."
+                        onChanage={onChangeInput}
+                        type="password"
                     />
                     <div className={S.buttonContainer}>
                         <Button onClick={isClick} disabled={true}>

@@ -5,7 +5,7 @@ import DashBoard from "../pages/DashBoard/DashBoard";
 import Login from "../pages/Login/Login";
 import Profile from "../pages/Profile/Profile";
 import Ranking from "../pages/Ranking/Ranking";
-import SignUp from "../pages/SignUp/SigIn";
+import Signup from "../pages/Signup/Signup";
 
 const router = createBrowserRouter([
     {
@@ -33,8 +33,8 @@ const router = createBrowserRouter([
                 Component: Ranking,
             },
             {
-                path: "/SignUp",
-                Component: SignUp,
+                path: "/Signup",
+                Component: Signup,
             },
         ],
     },
