@@ -43,3 +43,6 @@ input:focus {
 .feedBackText.hidden {
     visibility: hidden;
 }
+.feedBackText.sucsses {
+    color: #22c55e;
+}
