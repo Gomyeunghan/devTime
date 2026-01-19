@@ -13,7 +13,7 @@ import {
     checkEmailDuplicate,
     checkNicknameDuplicate,
     signup,
-} from "@/utils/signup";
+} from "@/api/signup";
 
 function Signup() {
     const [email, setEmail] = useState("");
@@ -100,9 +100,9 @@ function Signup() {
         }
         try {
             const result = await signup({
-                email,
+                email: email,
                 nickname: nickName,
-                password,
+                password: password,
                 confirmPassword: passwordConfirm,
             });
 
