@@ -19,9 +19,9 @@ function Login() {
                 <img
                     src={SymbolLogo}
                     alt="devTimeLogo"
-                    className={S.img_position}
+                    className={S.imgPosition}
                 />
-                <div className={`${S.loginFormContainer} ${S.bg_styled}`}>
+                <div className={`${S.loginFormContainer} ${S.bgStyled}`}>
                     <h1 className={S.logo}>
                         <img src={Logo} alt="devTimeLogo" />
                     </h1>
