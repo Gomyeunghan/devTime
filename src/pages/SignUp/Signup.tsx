@@ -13,7 +13,7 @@ import {
     checkEmailDuplicate,
     checkNicknameDuplicate,
     signup,
-} from "@/utils/signup";
+} from "@/utils/signubrp";
 
 function Signup() {
     const [email, setEmail] = useState("");
