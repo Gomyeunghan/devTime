@@ -1,0 +1,33 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-height: 48px;
+    background: var(--primary-color);
+    border-radius: 5px;
+    color: white;
+    padding: 12px 16px;
+    white-space: nowrap;
+}
+.container.disabled {
+    background: var(--disabled);
+    cursor: not-allowed;
+}
+button:disabled {
+    pointer-events: none;
+}
+.container.ghost {
+    background: #4c79ff1a;
+    border: none;
+    color: var(--primary-color);
+    padding: 12px 16px;
+    border-radius: 5px;
+}
+
+.container.ghost.disabled,
+.container.ghost:disabled {
+    background: #f2f2f2;
+    color: #c4c4c4;
+    cursor: not-allowed;
+}
