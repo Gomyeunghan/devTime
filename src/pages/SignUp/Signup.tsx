@@ -16,7 +16,7 @@ import {
 } from "@/api/signup";
 
 import type { FieldStatus } from "@/types/feedback.type";
-import { NICKNAME_MESSAGE } from "@/constants/messages/nickName";
+import { NICKNAME_MESSAGE } from "@/constants/messages/nickname";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 
 function Signup() {
@@ -63,14 +63,16 @@ function Signup() {
         };
     };
 
-    const fieldHandler: Partial<Record<keyof typeof formValue, () => void>> = {
-        email: () => {
-            const { status } = validateEmailField(formValue.email);
+    const fieldHandler: Partial<
+        Record<keyof typeof formValue, (value: string) => void>
+    > = {
+        email: value => {
+            const { status } = validateEmailField(value);
             setEmailStatus(status);
             setEmailMessage(EMAIL_MESSAGE[status]);
         },
-        nickname: () => {
-            const { status } = validateNicknameField(formValue.nickname);
+        nickname: value => {
+            const { status } = validateNicknameField(value);
             setNicknameStatus(status);
             setNicknameMessage(NICKNAME_MESSAGE[status]);
         },
@@ -79,13 +81,14 @@ function Signup() {
     // 타입설명 formValue의 키는 ()=>void 이며 옵셔널하다
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const field = e.target.name as keyof typeof formValue;
+        const value = e.target.value;
 
         setFormValue(prev => ({
             ...prev,
-            [field]: e.target.value,
+            [field]: value,
         }));
 
-        fieldHandler[field]?.();
+        fieldHandler[field]?.(value);
     };
 
     const clickEmailDuplicate = async () => {
@@ -116,7 +119,9 @@ function Signup() {
                 : "DUPLICATE";
             setNicknameStatus(status);
             setNicknameMessage(result.message);
-        } catch (error) {}
+        } catch (error) {
+            setNicknameStatus("ERROR");
+        }
     };
     const nicknameFeedbackMessage =
         nicknameStatus === "AVAILABLE" || nicknameStatus === "DUPLICATE"
@@ -124,7 +129,7 @@ function Signup() {
             : NICKNAME_MESSAGE[nicknameStatus];
 
     const handleSubmit = async () => {
-        if (emailStatus !== "AVAILABLE" && nicknameStatus !== "AVAILABLE") {
+        if (emailStatus !== "AVAILABLE" || nicknameStatus !== "AVAILABLE") {
             return;
         }
         try {
@@ -155,7 +160,7 @@ function Signup() {
                             isValid={emailStatus === "AVAILABLE"}
                             inputLabel="아이디"
                             feedBackText={emailFeedbackMessage}
-                            onChanage={e => handleChange(e)}
+                            onChange={e => handleChange(e)}
                             type="email"
                             onBlur={() => handleBlur("email")}
                         />
@@ -174,7 +179,7 @@ function Signup() {
                             isValid={nicknameStatus === "AVAILABLE"}
                             inputLabel="닉네임"
                             feedBackText={nicknameFeedbackMessage}
-                            onChanage={e => handleChange(e)}
+                            onChange={e => handleChange(e)}
                             type="text"
                             onBlur={() => handleBlur("nickName")}
                         />
@@ -196,7 +201,7 @@ function Signup() {
                                 ? ""
                                 : "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."
                         }
-                        onChanage={e => handleChange(e)}
+                        onChange={e => handleChange(e)}
                         onBlur={() => handleBlur("password")}
                         type="password"
                     />
@@ -216,7 +221,7 @@ function Signup() {
                                 ? ""
                                 : "비밀번호가 일치하지 않습니다."
                         }
-                        onChanage={e => handleChange(e)}
+                        onChange={e => handleChange(e)}
                         onBlur={() => handleBlur("confirmPassword")}
                         type="password"
                     />
