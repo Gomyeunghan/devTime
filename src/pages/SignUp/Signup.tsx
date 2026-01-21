@@ -19,6 +19,15 @@ import type { FieldStatus } from "@/types/feedback.type";
 import { NICKNAME_MESSAGE } from "@/constants/messages/nickName";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 
+/**
+ * Render the sign-up form and manage its validation, duplicate checks, and submission flow.
+ *
+ * The component maintains local form state for email, nickname, password, and confirmation;
+ * validates inputs in real time; performs asynchronous email and nickname duplication checks;
+ * and submits the collected values to the signup API when validation and duplicate checks pass.
+ *
+ * @returns The React element for the sign-up form UI
+ */
 function Signup() {
     const [formValue, setFormValue] = useState({
         email: "",

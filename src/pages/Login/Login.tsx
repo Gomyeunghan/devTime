@@ -5,6 +5,11 @@ import Logo from "@assets/Logo-1.png";
 import SymbolLogo from "@assets/SymbolLogo.svg";
 import { Link } from "react-router-dom";
 
+/**
+ * Renders the login screen with branding, email and password inputs, a disabled login button, and a link to the signup page.
+ *
+ * @returns The JSX element representing the login page.
+ */
 function Login() {
     const isClick = () => {
         console.log("Clicked");
