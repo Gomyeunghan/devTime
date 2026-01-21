@@ -7,7 +7,7 @@ function Input({
     inputLabel,
     isValid,
     feedBackText,
-    onChanage,
+    onChange,
     type,
     onBlur,
 }: {
@@ -16,7 +16,7 @@ function Input({
     inputLabel?: string;
     isValid: boolean | null;
     feedBackText: string;
-    onChanage: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type: HTMLInputTypeAttribute;
     onBlur?: () => void;
 }) {
@@ -36,23 +36,19 @@ function Input({
     return (
         <div className={S.container}>
             <div>{inputLabel}</div>
-            <div
-                className={`${S.input} ${
-                    showError ? S.wrong : showSuccess ? S.sucsses : ""
-                }`}
-            >
+            <div className={`${S.input} ${showError ? S.wrong : ""}`}>
                 <input
                     name={name}
                     type={type}
                     placeholder={placeholder}
-                    onChange={onChanage}
+                    onChange={onChange}
                     onBlur={handleBlur}
                 />
             </div>
 
             <span
                 className={`${S.feedBackText} ${
-                    showError ? S.wrong : showSuccess ? S.sucsses : ""
+                    showError ? S.wrong : showSuccess ? S.success : ""
                 }`}
                 style={{
                     visibility: showMessage ? "visible" : "hidden",

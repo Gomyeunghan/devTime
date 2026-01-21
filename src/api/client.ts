@@ -1,13 +1,13 @@
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-interface RequsetOptions {
+interface RequestOptions {
     method: "GET" | "POST";
     body?: unknown;
 }
 
 export async function request<T>(
     url: string,
-    options: RequsetOptions,
+    options: RequestOptions,
 ): Promise<T> {
     const response = await fetch(`${BASE_URL}${url}`, {
         method: options.method,
@@ -17,9 +17,13 @@ export async function request<T>(
         body: options.body ? JSON.stringify(options.body) : undefined,
     });
     if (!response.ok) {
-        const errorData = await response.json();
-
-        throw new Error(errorData?.error.message || "처리중 에러발생");
+        let errorMessage = "처리중 에러발생";
+        try {
+            const errorData = await response.json();
+            errorMessage = errorData?.error?.message || errorMessage;
+        } catch {
+            throw new Error(errorMessage);
+        }
     }
 
     return response.json();
