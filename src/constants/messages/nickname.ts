@@ -1,6 +1,5 @@
 import type { FieldStatus } from "@/types/feedback.type";
 
-// constants/emailMessage.ts
 export const NICKNAME_MESSAGE: Record<FieldStatus, string> = {
     IDLE: "닉네임 을 입력해주세요",
     INVALID_FORMAT: "닉네임 을 입력해주세요.",
