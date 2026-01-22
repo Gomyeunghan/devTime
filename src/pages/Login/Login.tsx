@@ -10,6 +10,7 @@ import type { FieldStatus } from "@/types/feedback.type";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { login } from "@/api/login";
 import { useNavigate } from "react-router-dom";
+import Modal from "@/components/Modal/Modal";
 
 function Login() {
     let navigate = useNavigate();
@@ -23,6 +24,7 @@ function Login() {
         email: false,
         password: false,
     });
+    const [isShowModal, setShowModal] = useState(false);
 
     const handleBlur = (field: keyof typeof touched) => {
         setTouched(prev => ({ ...prev, [field]: true }));
@@ -74,7 +76,7 @@ function Login() {
             localStorage.setItem("refreshToken : ", result.refreshToken);
         } catch (error) {
             if (error instanceof Error) {
-                alert(error.message);
+                setShowModal(!isShowModal);
             } else {
                 alert("알수없는 오류가 발생했습니다.");
             }
@@ -92,9 +94,16 @@ Set-Cookie 헤더(HttpOnly)로 내려오지 않고 response body로 전달되고
 로컬 저장소에 저장하여 사용하고 있다.
 */
 
+    const onClick = () => {
+        setShowModal(!isShowModal);
+    };
+
     return (
         <>
             <div className={S.container}>
+                <Modal isShowModal={isShowModal} onClick={onClick}>
+                    로그인 정보를 확인해주세요
+                </Modal>
                 <img
                     src={SymbolLogo}
                     alt="devTimeLogo"
