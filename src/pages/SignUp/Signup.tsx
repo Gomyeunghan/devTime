@@ -18,8 +18,10 @@ import {
 import type { FieldStatus } from "@/types/feedback.type";
 import { NICKNAME_MESSAGE } from "@/constants/messages/nickname";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
+    let navigate = useNavigate();
     const [formValue, setFormValue] = useState({
         email: "",
         nickname: "",
@@ -136,6 +138,7 @@ function Signup() {
             const result = await signup(formValue);
 
             alert(result.message);
+            navigate("/login");
         } catch (error) {
             if (error instanceof Error) {
                 alert(error.message);

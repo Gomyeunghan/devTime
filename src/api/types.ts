@@ -22,3 +22,15 @@ export interface CheckDuplicateResponse {
     available: boolean;
     message: string;
 }
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+export interface LoginResponse {
+    accessToken: string;
+    isDuplicateLogin: boolean;
+    isFirstLogin: boolean;
+    message: string;
+    refreshToken: string;
+    success: boolean;
+}
