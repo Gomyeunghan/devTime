@@ -1,6 +1,16 @@
 import { useState, type HTMLInputTypeAttribute } from "react";
 import S from "./Input.module.css";
 
+/**
+ * Render an input control with an optional label, validation styling, and a feedback message.
+ *
+ * @param isValid - Validation state: `true` for valid, `false` for invalid, or `null` when unset.
+ * @param feedBackText - Message shown after the field is touched; hidden until the input has been blurred.
+ * @param onChanage - Change event handler for the input element.
+ * @param onBlur - Optional callback invoked when the input loses focus (after marking the field as touched).
+ *
+ * @returns The rendered input element with conditional success/error styles and feedback text.
+ */
 function Input({
     name,
     placeholder,
