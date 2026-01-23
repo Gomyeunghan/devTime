@@ -35,7 +35,7 @@ function Signup() {
     const [touched, setTouched] = useState({
         email: false,
         password: false,
-        nickName: false,
+        nickname: false,
         confirmPassword: false,
     });
 
@@ -184,7 +184,7 @@ function Signup() {
                             feedBackText={nicknameFeedbackMessage}
                             onChange={e => handleChange(e)}
                             type="text"
-                            onBlur={() => handleBlur("nickName")}
+                            onBlur={() => handleBlur("nickname")}
                         />
                         <Button
                             variant="secondary"
