@@ -43,7 +43,7 @@ function Login() {
     };
 
     const fieldHandler: Partial<
-        Record<keyof typeof formValue, (valie: string) => void>
+        Record<keyof typeof formValue, (value: string) => void>
     > = {
         email: value => {
             const { status } = validateEmailField(value);
