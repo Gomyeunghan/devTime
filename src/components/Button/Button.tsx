@@ -12,22 +12,23 @@ function Button({
     variant: "primary" | "secondary";
 }) {
     return variant === "primary" ? (
-        <div className={`${S.container} ${disabled ? S.disabled : ""}`}>
-            <button onClick={onClick} disabled={disabled}>
-                {children}
-            </button>
-        </div>
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            className={`${S.container} ${disabled ? S.disabled : ""}`}
+        >
+            {children}
+        </button>
     ) : (
-        <div
+        <button
+            onClick={onClick}
+            disabled={disabled}
             className={`${S.container} ${S.ghost} ${
                 disabled ? S.disabled : ""
             }`}
         >
-            <button onClick={onClick} disabled={disabled}>
-                {children}
-            </button>
-        </div>
+            {children}
+        </button>
     );
 }
 export default Button;
-// 폰트사이즈 프롭으로 받아야할듯 개선필요

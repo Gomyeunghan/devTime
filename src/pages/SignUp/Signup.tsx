@@ -13,100 +13,132 @@ import {
     checkEmailDuplicate,
     checkNicknameDuplicate,
     signup,
-} from "@/utils/signup";
+} from "@/api/signup";
+
+import type { FieldStatus } from "@/types/feedback.type";
+import { NICKNAME_MESSAGE } from "@/constants/messages/nickname";
+import { EMAIL_MESSAGE } from "@/constants/messages/email";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [nickName, setNickName] = useState("");
-    const [passwordConfirm, setPasswordConfirm] = useState("");
-    const [emailCheckMessage, setEmailCheckMessage] = useState("");
-    const [emailAvailable, setEmailAvailable] = useState(false);
-    const [nickNameCheckMessage, setNicknameCheckMessage] = useState("");
-    const [nickNameAvailable, setNicknameAvailable] = useState(false);
-    const [isEmailChecked, setIsEmailChecked] = useState(false);
-    const [isNicknameChecked, setIsNicknameChecked] = useState(false);
-
+    let navigate = useNavigate();
+    const [formValue, setFormValue] = useState({
+        email: "",
+        nickname: "",
+        password: "",
+        confirmPassword: "",
+    });
+    const [emailStatus, setEmailStatus] = useState<FieldStatus>("IDLE");
+    const [emailMessage, setEmailMessage] = useState<string>("");
+    const [nicknameStatus, setNicknameStatus] = useState<FieldStatus>("IDLE");
+    const [nicknameMessage, setNicknameMessage] = useState<string>("");
     const [touched, setTouched] = useState({
         email: false,
         password: false,
         nickName: false,
-        passwordConfirm: false,
+        confirmPassword: false,
     });
 
-    const getEmailFeedback = () => {
-        if (isEmailChecked && emailCheckMessage) {
-            return emailCheckMessage;
-        }
-
-        if (email && validateEmail(email) && !isEmailChecked) {
-            return "중복 확인이 필요합니다.";
-        }
-
-        return "이메일 형식으로 작성해 주세요.";
-    };
-
-    const getEmailValid = () => {
-        if (isEmailChecked) {
-            return emailAvailable;
-        }
-
-        return validateEmail(email);
-    };
-
-    const getNicknameFeedback = () => {
-        if (isNicknameChecked && nickNameCheckMessage) {
-            return nickNameCheckMessage;
-        }
-        if (nickName && validateNickname(nickName) && !isNicknameChecked) {
-            return "중복 확인이 필요합니다.";
-        }
-        return "닉네임을 입력해 주세요.";
-    };
-
-    const getNicknameValid = () => {
-        if (isNicknameChecked) {
-            return nickNameAvailable;
-        }
-        return validateNickname(nickName);
-    };
     const handleBlur = (field: keyof typeof touched) => {
         setTouched(prev => ({ ...prev, [field]: true }));
     };
 
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value);
-        setEmailCheckMessage("");
-        setEmailAvailable(false);
+    const validateEmailField = (email: string) => {
+        if (!validateEmail(email)) {
+            return {
+                status: "INVALID_FORMAT" as const,
+            };
+        }
+
+        return {
+            status: "NEED_CHECK" as const,
+        };
     };
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.target.value);
-    };
-    const handlePasswordConfirmChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        setPasswordConfirm(e.target.value);
+    const validateNicknameField = (nickName: string) => {
+        if (!validateNickname(nickName)) {
+            return {
+                status: "INVALID_FORMAT" as const,
+            };
+        }
+        return {
+            status: "NEED_CHECK" as const,
+        };
     };
 
-    const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNickName(e.target.value);
-        setNicknameCheckMessage("");
-        setNicknameAvailable(false);
+    const fieldHandler: Partial<
+        Record<keyof typeof formValue, (value: string) => void>
+    > = {
+        email: value => {
+            const { status } = validateEmailField(value);
+            setEmailStatus(status);
+            setEmailMessage(EMAIL_MESSAGE[status]);
+        },
+        nickname: value => {
+            const { status } = validateNicknameField(value);
+            setNicknameStatus(status);
+            setNicknameMessage(NICKNAME_MESSAGE[status]);
+        },
     };
+
+    // 타입설명 formValue의 키는 ()=>void 이며 옵셔널하다
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const field = e.target.name as keyof typeof formValue;
+        const value = e.target.value;
+
+        setFormValue(prev => ({
+            ...prev,
+            [field]: value,
+        }));
+
+        fieldHandler[field]?.(value);
+    };
+
+    const clickEmailDuplicate = async () => {
+        try {
+            const result = await checkEmailDuplicate(formValue.email);
+
+            const status: FieldStatus = result.available
+                ? "AVAILABLE"
+                : "DUPLICATE";
+
+            setEmailStatus(status);
+            setEmailMessage(result.message);
+        } catch {
+            setEmailStatus("ERROR");
+        }
+    };
+    const emailFeedbackMessage =
+        emailStatus === "AVAILABLE" || emailStatus === "DUPLICATE"
+            ? emailMessage
+            : EMAIL_MESSAGE[emailStatus];
+
+    const clickNickNameDuplicate = async () => {
+        try {
+            const result = await checkNicknameDuplicate(formValue.nickname);
+
+            const status: FieldStatus = result.available
+                ? "AVAILABLE"
+                : "DUPLICATE";
+            setNicknameStatus(status);
+            setNicknameMessage(result.message);
+        } catch (error) {
+            setNicknameStatus("ERROR");
+        }
+    };
+    const nicknameFeedbackMessage =
+        nicknameStatus === "AVAILABLE" || nicknameStatus === "DUPLICATE"
+            ? nicknameMessage
+            : NICKNAME_MESSAGE[nicknameStatus];
 
     const handleSubmit = async () => {
-        if (!isEmailChecked && !isNicknameChecked) {
+        if (emailStatus !== "AVAILABLE" || nicknameStatus !== "AVAILABLE") {
             return;
         }
         try {
-            const result = await signup({
-                email,
-                nickname: nickName,
-                password,
-                confirmPassword: passwordConfirm,
-            });
+            const result = await signup(formValue);
 
             alert(result.message);
+            navigate("/login");
         } catch (error) {
             if (error instanceof Error) {
                 alert(error.message);
@@ -115,29 +147,6 @@ function Signup() {
             }
         }
     };
-    const clickEmailDuplicate = async () => {
-        try {
-            const result = await checkEmailDuplicate(email);
-            setEmailCheckMessage(result.message);
-            setEmailAvailable(result.available);
-            setIsEmailChecked(true);
-            console.log(result);
-        } catch (error) {
-            throw error;
-        }
-    };
-    const clickNickNameDuplicate = async () => {
-        try {
-            const result = await checkNicknameDuplicate(nickName);
-            setNicknameAvailable(result.available);
-            setNicknameCheckMessage(result.message);
-            setIsNicknameChecked(true);
-            console.log(result);
-        } catch (error) {
-            throw error;
-        }
-    };
-
     return (
         <div className={S.container}>
             <div className={S.decorateConatainer}>
@@ -149,18 +158,18 @@ function Signup() {
                     <h1>회원가입</h1>
                     <div className={S.formWrapper}>
                         <Input
+                            name="email"
                             placeholder="이메일을 입력해주세요"
-                            isValid={getEmailValid()}
-                            available={emailAvailable}
+                            isValid={emailStatus === "AVAILABLE"}
                             inputLabel="아이디"
-                            feedBackText={getEmailFeedback()}
-                            onChanage={e => handleEmailChange(e)}
+                            feedBackText={emailFeedbackMessage}
+                            onChange={e => handleChange(e)}
                             type="email"
                             onBlur={() => handleBlur("email")}
                         />
                         <Button
                             variant="secondary"
-                            disabled={!validateEmail(email)}
+                            disabled={!validateEmail(formValue.email)}
                             onClick={clickEmailDuplicate}
                         >
                             중복확인
@@ -168,42 +177,55 @@ function Signup() {
                     </div>
                     <div className={S.formWrapper}>
                         <Input
+                            name="nickname"
                             placeholder="닉네임을 입력해주세요"
-                            isValid={getNicknameValid()}
-                            available={nickNameAvailable}
+                            isValid={nicknameStatus === "AVAILABLE"}
                             inputLabel="닉네임"
-                            feedBackText={getNicknameFeedback()}
-                            onChanage={e => handleNicknameChange(e)}
+                            feedBackText={nicknameFeedbackMessage}
+                            onChange={e => handleChange(e)}
                             type="text"
                             onBlur={() => handleBlur("nickName")}
                         />
                         <Button
                             variant="secondary"
-                            disabled={!validateNickname(nickName)}
+                            disabled={!validateNickname(formValue.nickname)}
                             onClick={clickNickNameDuplicate}
                         >
                             중복확인
                         </Button>
                     </div>
                     <Input
+                        name="password"
                         placeholder="비밀번호를 입력해주세요"
-                        isValid={validatePassword(password)}
+                        isValid={validatePassword(formValue.password)}
                         inputLabel="비밀번호"
-                        feedBackText="비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."
-                        onChanage={e => handlePasswordChange(e)}
+                        feedBackText={
+                            validatePassword(formValue.password)
+                                ? ""
+                                : "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."
+                        }
+                        onChange={e => handleChange(e)}
                         onBlur={() => handleBlur("password")}
                         type="password"
                     />
                     <Input
+                        name="confirmPassword"
                         placeholder="비밀번호를 다시 입력해 주세요"
                         isValid={validatePasswordConfirm(
-                            password,
-                            passwordConfirm,
+                            formValue.password,
+                            formValue.confirmPassword,
                         )}
                         inputLabel="비밀번호"
-                        feedBackText="비밀번호가 일치하지 않습니다."
-                        onChanage={e => handlePasswordConfirmChange(e)}
-                        onBlur={() => handleBlur("passwordConfirm")}
+                        feedBackText={
+                            validatePasswordConfirm(
+                                formValue.password,
+                                formValue.confirmPassword,
+                            )
+                                ? ""
+                                : "비밀번호가 일치하지 않습니다."
+                        }
+                        onChange={e => handleChange(e)}
+                        onBlur={() => handleBlur("confirmPassword")}
                         type="password"
                     />
                     <div style={{ marginBottom: "36px" }}>
@@ -300,17 +322,15 @@ function Signup() {
                         variant="primary"
                         onClick={handleSubmit}
                         disabled={
-                            !validateEmail(email) ||
-                            !validatePassword(password) ||
-                            !validateNickname(nickName) ||
+                            !validateEmail(formValue.email) ||
+                            !validatePassword(formValue.password) ||
+                            !validateNickname(formValue.nickname) ||
                             !validatePasswordConfirm(
-                                password,
-                                passwordConfirm,
+                                formValue.password,
+                                formValue.confirmPassword,
                             ) ||
-                            !isEmailChecked ||
-                            !emailAvailable ||
-                            !isNicknameChecked ||
-                            !nickNameAvailable
+                            emailStatus !== "AVAILABLE" ||
+                            nicknameStatus !== "AVAILABLE"
                         }
                     >
                         회원가입
@@ -320,4 +340,5 @@ function Signup() {
         </div>
     );
 }
+
 export default Signup;

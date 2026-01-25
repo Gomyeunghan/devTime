@@ -2,21 +2,21 @@ import { useState, type HTMLInputTypeAttribute } from "react";
 import S from "./Input.module.css";
 
 function Input({
+    name,
     placeholder,
     inputLabel,
     isValid,
     feedBackText,
-    onChanage,
+    onChange,
     type,
-    available,
     onBlur,
 }: {
+    name: string;
     placeholder: string;
     inputLabel?: string;
-    isValid: boolean;
-    available?: boolean;
-    feedBackText?: string;
-    onChanage: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    isValid: boolean | null;
+    feedBackText: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type: HTMLInputTypeAttribute;
     onBlur?: () => void;
 }) {
@@ -29,36 +29,32 @@ function Input({
         }
     };
 
-    const hasAvailableCheck = available !== undefined;
+    const showError = touched && isValid === false;
+    const showSuccess = touched && isValid === true;
+    const showMessage = touched && feedBackText;
 
-    const showError = touched && !isValid;
-    const showSuccess = touched && isValid && available === true;
-
-    const showWarning =
-        hasAvailableCheck && touched && isValid && available !== true;
     return (
         <div className={S.container}>
             <div>{inputLabel}</div>
             <div className={`${S.input} ${showError ? S.wrong : ""}`}>
                 <input
+                    name={name}
                     type={type}
                     placeholder={placeholder}
-                    onChange={onChanage}
+                    onChange={onChange}
                     onBlur={handleBlur}
                 />
             </div>
+
             <span
                 className={`${S.feedBackText} ${
-                    showError
-                        ? S.wrong
-                        : showSuccess
-                        ? S.sucsses
-                        : showWarning
-                        ? S.wrong
-                        : S.hidden
+                    showError ? S.wrong : showSuccess ? S.success : ""
                 }`}
+                style={{
+                    visibility: showMessage ? "visible" : "hidden",
+                }}
             >
-                {feedBackText}
+                {feedBackText || "placeholder"}
             </span>
         </div>
     );
