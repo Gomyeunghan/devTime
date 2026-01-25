@@ -1,0 +1,67 @@
+[
+  {
+    "name": "week-1",
+    "color": "C7D2FE",
+    "description": "1주차 수업 내용"
+  },
+  {
+    "name": "week-2",
+    "color": "A5B4FC",
+    "description": "2주차 수업 내용"
+  },
+  {
+    "name": "week-3",
+    "color": "818CF8",
+    "description": "3주차 수업 내용"
+  },
+  {
+    "name": "week-4",
+    "color": "6366F1",
+    "description": "4주차 수업 내용"
+  },
+  {
+    "name": "feature",
+    "color": "22C55E",
+    "description": "기능 추가"
+  },
+  {
+    "name": "fix",
+    "color": "EF4444",
+    "description": "버그 수정"
+  },
+  {
+    "name": "refactor",
+    "color": "F59E0B",
+    "description": "리팩토링"
+  },
+  {
+    "name": "chore",
+    "color": "94A3B8",
+    "description": "설정/기타 작업"
+  },
+  {
+    "name": "docs",
+    "color": "38BDF8",
+    "description": "문서 작업"
+  },
+  {
+    "name": "in-progress",
+    "color": "FBBF24",
+    "description": "작업 중"
+  },
+  {
+    "name": "review-needed",
+    "color": "A855F7",
+    "description": "리뷰 필요"
+  },
+  {
+    "name": "blocked",
+    "color": "6B7280",
+    "description": "진행 불가"
+  },
+  {
+    "name": "done",
+    "color": "10B981",
+    "description": "완료"
+  }
+]
