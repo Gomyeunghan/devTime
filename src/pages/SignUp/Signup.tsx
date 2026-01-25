@@ -4,6 +4,7 @@ import Logo from "@assets/Logo_white.png";
 import Button from "@/components/Button/Button";
 import { useState } from "react";
 import {
+    isFormField,
     validateEmail,
     validateNickname,
     validatePassword,
@@ -21,7 +22,7 @@ import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { useNavigate } from "react-router-dom";
 
 function Signup() {
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const [formValue, setFormValue] = useState({
         email: "",
         nickname: "",
@@ -79,12 +80,11 @@ function Signup() {
             setNicknameMessage(NICKNAME_MESSAGE[status]);
         },
     };
-
-    // 타입설명 formValue의 키는 ()=>void 이며 옵셔널하다
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const field = e.target.name as keyof typeof formValue;
-        const value = e.target.value;
-
+        const { name: field, value } = e.target;
+        if (!isFormField(formValue, field)) {
+            return;
+        }
         setFormValue(prev => ({
             ...prev,
             [field]: value,
