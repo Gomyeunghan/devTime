@@ -71,9 +71,9 @@ function Login() {
         try {
             const result = await login(formValue);
             console.log(result);
-            // navigate("/");
-            localStorage.setItem("accessToken : ", result.accessToken);
-            localStorage.setItem("refreshToken : ", result.refreshToken);
+            navigate("/");
+            localStorage.setItem("accessToken", result.accessToken);
+            localStorage.setItem("refreshToken", result.refreshToken);
         } catch (error) {
             if (error instanceof Error) {
                 setShowModal(!isShowModal);
@@ -82,17 +82,6 @@ function Login() {
             }
         }
     };
-    /*
-인증/인가를 처음 구현하면서 XSS 공격에 취약한 로컬스토리지에
-토큰(특히 refresh token)을 저장하는 방식은 지양해야 한다는 점을 학습했다.
-
-다만 현재 서버 구현에서는 refresh token이
-Set-Cookie 헤더(HttpOnly)로 내려오지 않고 response body로 전달되고 있어,
-프론트엔드 단에서 쿠키로 안전하게 관리할 수 없는 구조였다.
-
-이로 인해 임시적으로 access / refresh token 모두
-로컬 저장소에 저장하여 사용하고 있다.
-*/
 
     const onClick = () => {
         setShowModal(!isShowModal);
