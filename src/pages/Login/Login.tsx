@@ -5,7 +5,11 @@ import Logo from "@assets/Logo-1.png";
 import SymbolLogo from "@assets/SymbolLogo.svg";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { validateEmail, validatePassword } from "@/utils/validation";
+import {
+    isFormField,
+    validateEmail,
+    validatePassword,
+} from "@/utils/validation";
 import type { FieldStatus } from "@/types/feedback.type";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { login } from "@/api/login";
@@ -13,13 +17,13 @@ import { useNavigate } from "react-router-dom";
 import Modal from "@/components/Modal/Modal";
 
 function Login() {
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const [formValue, setFormValue] = useState({
         email: "",
         password: "",
     });
     const [emailStatus, setEmailStatus] = useState<FieldStatus>("IDLE");
-    const [emailMessage, setEmailMessage] = useState<string>("");
+
     const [touched, setTouched] = useState({
         email: false,
         password: false,
@@ -48,13 +52,13 @@ function Login() {
         email: value => {
             const { status } = validateEmailField(value);
             setEmailStatus(status);
-            setEmailMessage(EMAIL_MESSAGE[status]);
         },
     };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const field = e.target.name as keyof typeof formValue;
-        const value = e.target.value;
-
+        const { name: field, value } = e.target;
+        if (!isFormField(formValue, field)) {
+            return;
+        }
         setFormValue(prev => ({
             ...prev,
             [field]: value,
@@ -64,16 +68,16 @@ function Login() {
     };
     const emailFeedbackMessage =
         emailStatus === "AVAILABLE" || emailStatus === "DUPLICATE"
-            ? emailMessage
+            ? EMAIL_MESSAGE["AVAILABLE"]
             : EMAIL_MESSAGE[emailStatus];
 
     const handleSubmit = async () => {
         try {
             const result = await login(formValue);
             console.log(result);
-            // navigate("/");
-            localStorage.setItem("accessToken : ", result.accessToken);
-            localStorage.setItem("refreshToken : ", result.refreshToken);
+            navigate("/");
+            localStorage.setItem("accessToken", result.accessToken);
+            localStorage.setItem("refreshToken", result.refreshToken);
         } catch (error) {
             if (error instanceof Error) {
                 setShowModal(!isShowModal);
@@ -82,17 +86,6 @@ function Login() {
             }
         }
     };
-    /*
-인증/인가를 처음 구현하면서 XSS 공격에 취약한 로컬스토리지에
-토큰(특히 refresh token)을 저장하는 방식은 지양해야 한다는 점을 학습했다.
-
-다만 현재 서버 구현에서는 refresh token이
-Set-Cookie 헤더(HttpOnly)로 내려오지 않고 response body로 전달되고 있어,
-프론트엔드 단에서 쿠키로 안전하게 관리할 수 없는 구조였다.
-
-이로 인해 임시적으로 access / refresh token 모두
-로컬 저장소에 저장하여 사용하고 있다.
-*/
 
     const onClick = () => {
         setShowModal(!isShowModal);
