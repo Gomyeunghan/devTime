@@ -44,40 +44,29 @@ function Signup() {
         setTouched(prev => ({ ...prev, [field]: true }));
     };
 
-    const validateEmailField = (email: string) => {
+    const validateEmailField = (email: string): FieldStatus => {
         if (!validateEmail(email)) {
-            return {
-                status: "INVALID_FORMAT" as const,
-            };
+            return "INVALID_FORMAT";
         }
-
-        return {
-            status: "NEED_CHECK" as const,
-        };
+        return "NEED_CHECK";
     };
-    const validateNicknameField = (nickName: string) => {
+    const validateNicknameField = (nickName: string): FieldStatus => {
         if (!validateNickname(nickName)) {
-            return {
-                status: "INVALID_FORMAT" as const,
-            };
+            return "INVALID_FORMAT";
         }
-        return {
-            status: "NEED_CHECK" as const,
-        };
+        return "NEED_CHECK";
     };
 
     const fieldHandler: Partial<
         Record<keyof typeof formValue, (value: string) => void>
     > = {
         email: value => {
-            const { status } = validateEmailField(value);
-            setEmailStatus(status);
-            setEmailMessage(EMAIL_MESSAGE[status]);
+            setEmailStatus(validateEmailField(value));
+            setEmailMessage(EMAIL_MESSAGE[validateEmailField(value)]);
         },
         nickname: value => {
-            const { status } = validateNicknameField(value);
-            setNicknameStatus(status);
-            setNicknameMessage(NICKNAME_MESSAGE[status]);
+            setNicknameStatus(validateNicknameField(value));
+            setNicknameMessage(NICKNAME_MESSAGE[validateNicknameField(value)]);
         },
     };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

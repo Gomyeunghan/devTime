@@ -34,24 +34,18 @@ function Login() {
         setTouched(prev => ({ ...prev, [field]: true }));
     };
 
-    const validateEmailField = (email: string) => {
+    const validateEmailField = (email: string): FieldStatus => {
         if (!validateEmail(email)) {
-            return {
-                status: "INVALID_FORMAT" as const,
-            };
+            return "INVALID_FORMAT";
         }
-
-        return {
-            status: "AVAILABLE" as const,
-        };
+        return "AVAILABLE";
     };
 
     const fieldHandler: Partial<
         Record<keyof typeof formValue, (valie: string) => void>
     > = {
         email: value => {
-            const { status } = validateEmailField(value);
-            setEmailStatus(status);
+            setEmailStatus(validateEmailField(value));
         },
     };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
