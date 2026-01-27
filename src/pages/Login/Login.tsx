@@ -15,6 +15,7 @@ import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { login } from "@/api/login";
 import { useNavigate } from "react-router-dom";
 import Modal from "@/components/Modal/Modal";
+import { tokenStorage } from "@/utils/storage";
 
 function Login() {
     const navigate = useNavigate();
@@ -70,8 +71,8 @@ function Login() {
             const result = await login(formValue);
             console.log(result);
             navigate("/");
-            localStorage.setItem("accessToken", result.accessToken);
-            localStorage.setItem("refreshToken", result.refreshToken);
+            tokenStorage.setAccessToken(result.accessToken);
+            tokenStorage.setRefreshToken(result.refreshToken);
         } catch (error) {
             if (error instanceof Error) {
                 setShowModal(!isShowModal);
