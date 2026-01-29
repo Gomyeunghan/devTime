@@ -1,0 +1,14 @@
+.container {
+    background-color: #f0f2f5;
+    padding: 16px 24px;
+    display: flex;
+    width: 568px;
+    height: 72px;
+    border-radius: 10px;
+}
+.container.add {
+    background-color: var(--primary-color);
+}
+.button {
+    white-space: nowrap;
+}
