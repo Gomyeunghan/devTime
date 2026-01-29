@@ -33,7 +33,7 @@ const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
 export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     const intervalRef = useRef<number | null>(null);
-    const pollingRef = useRef<number | null>(null); // 10분마다 업데이트
+    // const pollingRef = useRef<number | null>(null); // 10분마다 업데이트
     const [totalSeconds, setTotalSeconds] = useState(0);
     const [timerRunning, setTimerRunning] = useState(false);
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -63,13 +63,11 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             setTotalSeconds(elapsedSeconds);
 
             startInterval();
-            startPolling();
         };
         fetchTimer();
 
         return () => {
             stopInterval();
-            stopPolling();
         };
     }, []);
 
@@ -98,24 +96,25 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         setTimerRunning(false);
     };
 
-    // 10분마다 서버 업데이트
-    const startPolling = () => {
-        if (!timerId || pollingRef.current !== null) return;
+    // const startPolling = () => {
+    //     if (!timerId || pollingRef.current !== null) return;
 
-        pollingRef.current = window.setInterval(
-            () => {
-                updateServerTimer();
-            },
-            10 * 60 * 1000,
-        ); // 10분
-    };
+    //     pollingRef.current = window.setInterval(
+    //         () => {
+    //             updateServerTimer();
+    //         },
+    //         10 * 60 * 1000,
+    //     ); // 10분
+    // };
 
-    const stopPolling = () => {
-        if (pollingRef.current !== null) {
-            clearInterval(pollingRef.current);
-            pollingRef.current = null;
-        }
-    };
+    // const stopPolling = () => {
+    //     if (pollingRef.current !== null) {
+    //         clearInterval(pollingRef.current);
+    //         pollingRef.current = null;
+    //     }
+    // };
+
+    //일시정지시 10분마다 상태업데이트 종료되어야함
 
     const updateServerTimer = async () => {
         if (!timerId) return;
@@ -153,12 +152,10 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         setTotalSeconds(0);
 
         startInterval();
-        startPolling();
     };
 
     const pause = async (review: string = "") => {
         stopInterval();
-        stopPolling();
 
         const pausedData: PausedTimerData = {
             splitTimes: [
@@ -176,7 +173,6 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
 
     const stop = async () => {
         stopInterval();
-        stopPolling();
 
         if (timerId) {
             await deleteTiemr(timerId);
