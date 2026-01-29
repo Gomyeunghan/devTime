@@ -1,0 +1,11 @@
+.todoheader {
+    display: flex;
+    justify-content: space-between;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 48px 36px 36px 36px;
+    width: 640px;
+    height: 932px;
+}
