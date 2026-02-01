@@ -1,7 +1,7 @@
 import type { FieldStatus } from "@/types/feedback.type";
 
 export const NICKNAME_MESSAGE: Record<FieldStatus, string> = {
-    IDLE: "닉네임 을 입력해주세요",
+    IDLE: "닉네임을 입력해주세요.",
     INVALID_FORMAT: "닉네임 을 입력해주세요.",
     NEED_CHECK: "중복확인이 필요합니다.",
     AVAILABLE: "",

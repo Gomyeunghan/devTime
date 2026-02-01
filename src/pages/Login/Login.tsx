@@ -5,21 +5,26 @@ import Logo from "@assets/Logo-1.png";
 import SymbolLogo from "@assets/SymbolLogo.svg";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { validateEmail, validatePassword } from "@/utils/validation";
+import {
+    isFormField,
+    validateEmail,
+    validatePassword,
+} from "@/utils/validation";
 import type { FieldStatus } from "@/types/feedback.type";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { login } from "@/api/login";
 import { useNavigate } from "react-router-dom";
 import Modal from "@/components/Modal/Modal";
+import { tokenStorage } from "@/utils/storage";
 
 function Login() {
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const [formValue, setFormValue] = useState({
         email: "",
         password: "",
     });
     const [emailStatus, setEmailStatus] = useState<FieldStatus>("IDLE");
-    const [emailMessage, setEmailMessage] = useState<string>("");
+
     const [touched, setTouched] = useState({
         email: false,
         password: false,
@@ -30,31 +35,25 @@ function Login() {
         setTouched(prev => ({ ...prev, [field]: true }));
     };
 
-    const validateEmailField = (email: string) => {
+    const validateEmailField = (email: string): FieldStatus => {
         if (!validateEmail(email)) {
-            return {
-                status: "INVALID_FORMAT" as const,
-            };
+            return "INVALID_FORMAT";
         }
-
-        return {
-            status: "AVAILABLE" as const,
-        };
+        return "AVAILABLE";
     };
 
     const fieldHandler: Partial<
         Record<keyof typeof formValue, (value: string) => void>
     > = {
         email: value => {
-            const { status } = validateEmailField(value);
-            setEmailStatus(status);
-            setEmailMessage(EMAIL_MESSAGE[status]);
+            setEmailStatus(validateEmailField(value));
         },
     };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const field = e.target.name as keyof typeof formValue;
-        const value = e.target.value;
-
+        const { name: field, value } = e.target;
+        if (!isFormField(formValue, field)) {
+            return;
+        }
         setFormValue(prev => ({
             ...prev,
             [field]: value,
@@ -64,16 +63,16 @@ function Login() {
     };
     const emailFeedbackMessage =
         emailStatus === "AVAILABLE" || emailStatus === "DUPLICATE"
-            ? emailMessage
+            ? EMAIL_MESSAGE["AVAILABLE"]
             : EMAIL_MESSAGE[emailStatus];
 
     const handleSubmit = async () => {
         try {
             const result = await login(formValue);
             console.log(result);
-            // navigate("/");
-            localStorage.setItem("accessToken : ", result.accessToken);
-            localStorage.setItem("refreshToken : ", result.refreshToken);
+            navigate("/");
+            tokenStorage.setAccessToken(result.accessToken);
+            tokenStorage.setRefreshToken(result.refreshToken);
         } catch (error) {
             if (error instanceof Error) {
                 setShowModal(!isShowModal);

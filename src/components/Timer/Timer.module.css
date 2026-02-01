@@ -1,0 +1,58 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+.time {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+}
+.timeCard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 10px 10px 36px 10px;
+    background: linear-gradient(180deg, #ffff 0%, #4c79ff33 150%);
+    border: 1px solid #4c79ff;
+    border-radius: 16px;
+}
+.timeCardText {
+    font-family: var(--font-base);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+.timeNumber {
+    font-family: var(--font-digit);
+    line-height: 1;
+    color: var(--primary-color);
+    font-size: 154px;
+    letter-spacing: 15px;
+    margin-right: -15px;
+}
+.colon {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+.colon::before,
+.colon::after {
+    content: ""; /* 빈 내용 */
+    width: 16px;
+    height: 16px;
+    background: #4c79ff;
+    border-radius: 50%; /* 원형 */
+}
+.controlBox {
+    margin-top: 80px;
+    display: flex;
+    gap: 90px;
+}

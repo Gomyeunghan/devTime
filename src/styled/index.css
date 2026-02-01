@@ -1,3 +1,11 @@
+@font-face {
+    font-family: "Digital-7";
+    src: url("/fonts/Digital-7Mono.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --primary-color: #4c79ff;
     --secondary-color: #023e99;
@@ -14,9 +22,11 @@
     --shadow2: #1f2937;
     --disabled: #969da8;
     --feedBackRed: #dc2626;
-    --font-base: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", Arial,
+    --font-base:
+        "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", Arial,
         sans-serif;
+    --font-digit: "Digital-7", var(--font-base);
 }
 html,
 body {

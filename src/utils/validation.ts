@@ -26,3 +26,17 @@ export const validatePasswordConfirm = (
 ): boolean => {
     return password === passwordConfirm && password.length > 0;
 };
+
+export const isFormField = <T extends object>(
+    obj: T,
+    field: PropertyKey,
+): field is keyof T => {
+    return field in obj;
+};
+
+//제너릭을 오브젝트로 정함
+//field 는 속성들의 키 타입임 string symbol num 등
+//타입 가드 함수가 ture일시 field 는 제너릭의 키 의 타입이 좁혀짐
+
+// 이 함수는 런타임에서 field in obj 를 검사하고,
+// 컴파일 타임에서는 true 분기 안에서 field 를 keyof T 로 타입을 좁힘 해주는 타입가드 함수이다.
