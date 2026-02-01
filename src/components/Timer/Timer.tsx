@@ -6,11 +6,20 @@ import Finish from "@assets/Finish.svg";
 import { useTimer } from "./TimerContext";
 
 export default function Timer() {
-    const { timeFormatted, start, pause, stop, timerRunning } = useTimer();
+    const { timeFormatted, start, pause, stop, resume, timerRunning, timerId } =
+        useTimer();
 
     // 예시 목표/할일 (모달 추가 전)
     const exampleGoal = "오늘 목표";
     const exampleTasks = [{ content: "예시 할 일", isCompleted: false }];
+
+    const handleStart = () => {
+        if (timerId) {
+            resume(); // 재개
+        } else {
+            start(exampleGoal, exampleTasks); // 새로 시작
+        }
+    };
 
     return (
         <div className={S.container}>
@@ -35,10 +44,7 @@ export default function Timer() {
                 </div>
             </div>
             <div className={S.controlBox}>
-                <button
-                    onClick={() => start(exampleGoal, exampleTasks)}
-                    disabled={timerRunning}
-                >
+                <button onClick={() => handleStart()} disabled={timerRunning}>
                     <img src={timerRunning ? StartDisabled : Start} />
                 </button>
                 <button onClick={pause}>
