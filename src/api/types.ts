@@ -34,6 +34,6 @@ export interface LoginResponse {
     refreshToken: string;
     success: boolean;
 }
-export interface getTiemrRequset {
+export interface getTimerRequest {
     accesToken: string;
 }

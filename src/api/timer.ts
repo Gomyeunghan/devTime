@@ -18,7 +18,7 @@ export interface responseTimer {
     startTime: string;
     lastUpdateTime: string;
 }
-interface pausedTimerData {
+export interface pausedTimerData {
     splitTimes: { date: string; timeSpent: number }[];
     review: string;
     tasks: Task[];
@@ -30,14 +30,20 @@ export async function getTimer(): Promise<responseTimer> {
     return await request("/api/timers", { method: "GET" });
 }
 
-export async function postTiemr(data?: requestTiemr): Promise<responseTimer> {
+export async function postTimer(data?: requestTiemr): Promise<responseTimer> {
     return await request("/api/timers", { method: "POST", body: data });
 }
-export async function pusedTimer(data?: requestTiemr): Promise<responseTimer> {
-    return await request("/api/timers", { method: "POST", body: data });
+export async function pusedTimer(
+    data: requestTiemr,
+    timerId: string,
+): Promise<responseTimer> {
+    return await request(`/api/timers/${timerId}`, {
+        method: "PUT",
+        body: data,
+    });
 }
 
-export async function deleteTiemr(timerId: string) {
+export async function deleteTimer(timerId: string) {
     return await request(`api/timers/${timerId}`, { method: "DELETE" });
 }
 export async function updateTimer(timerId: string, data: any) {

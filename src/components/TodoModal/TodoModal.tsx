@@ -2,10 +2,11 @@ import { useState } from "react";
 import TodoInput from "../TodoInput/TodoInput";
 import S from "./TodoModal.module.css";
 import { useTimer } from "../Timer/TimerContext";
+import type { Task } from "@/api/timer";
 
 function TodoModal() {
     const { tasks } = useTimer();
-    const [todoList, setTodoList] = useState<string[]>([]);
+    const [todoList, setTodoList] = useState<Task[]>([]);
 
     console.log(tasks);
     return (
@@ -16,8 +17,14 @@ function TodoModal() {
                     <span>할 일 목록</span>
                     <span>할 일 수정</span>
                 </div>
-                {todoList.map(items => {
-                    return <TodoInput todo={items} isAdd={true} />;
+                {todoList.map((items, index) => {
+                    return (
+                        <TodoInput
+                            todo={items.content}
+                            isAdd={true}
+                            key={index}
+                        />
+                    );
                 })}
             </div>
         </div>
