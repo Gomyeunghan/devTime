@@ -1,7 +1,9 @@
+import { tokenStorage } from "@/utils/storage";
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 interface RequestOptions {
-    method: "GET" | "POST";
+    method: "GET" | "POST" | "DELETE" | "PUT";
     body?: unknown;
 }
 
@@ -17,29 +19,12 @@ export async function request<T>(
     url: string,
     options: RequestOptions,
 ): Promise<T> {
+    const token = tokenStorage.getAccessToken();
     const response = await fetch(`${BASE_URL}${url}`, {
         method: options.method,
         headers: {
             "Content-Type": "application/json",
-        },
-        body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-
-    if (!response.ok) {
-        throw await parseError(response);
-    }
-
-    return response.json();
-}
-export async function authRequest<T>(
-    url: string,
-    options: RequestOptions,
-): Promise<T> {
-    const response = await fetch(`${BASE_URL}${url}`, {
-        method: options.method,
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
         body: options.body ? JSON.stringify(options.body) : undefined,
     });
