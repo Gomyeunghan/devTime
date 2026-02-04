@@ -3,36 +3,68 @@ import TodoInput from "../TodoInput/TodoInput";
 import S from "./TodoModal.module.css";
 import { useTimer } from "../Timer/TimerContext";
 import type { Task } from "@/api/timer";
+import { Portal } from "../Potal/Potal";
 
 function TodoModal() {
-    const { tasks } = useTimer();
-    const [todoList, setTodoList] = useState<Task[]>([]);
+    const { tasks, addTask, updateTask, deleteTask } = useTimer();
+    const [newTask, setNewTask] = useState<string>("");
 
-    console.log(tasks);
+    // 새 할 일 추가
+    const handleAddTask = () => {
+        if (!newTask.trim()) return;
+
+        const task: Task = {
+            content: newTask,
+            isCompleted: false,
+        };
+        addTask(task);
+        setNewTask(""); // 초기화
+    };
+
+    // 체크박스 토글
+    const handleToggleTask = (index: number) => {
+        const updatedTask = {
+            ...tasks[index],
+            isCompleted: !tasks[index].isCompleted,
+        };
+        updateTask(index, updatedTask);
+    };
+
     return (
-        <div className={S.container}>
-            <div>
-                <TodoInput isAdd={false} />
-                <div className={S.todoheader}>
-                    <span>할 일 목록</span>
-                    <span>할 일 수정</span>
-                </div>
-                {todoList.map((items, index) => {
-                    return (
+        <Portal>
+            <div className={S.backdrop}>
+                <div className={S.container}>
+                    <div className={S.headerContainer}>
+                        {/* 새 할 일 추가 */}
                         <TodoInput
-                            todo={items.content}
-                            isAdd={true}
-                            key={index}
+                            isAdd={false}
+                            value={newTask}
+                            onChange={e => setNewTask(e.target.value)}
+                            onClick={handleAddTask}
                         />
-                    );
-                })}
+                        <div className={S.todoheader}>
+                            <span>할 일 목록</span>
+                            <span>할 일 수정</span>
+                        </div>
+                    </div>
+
+                    {/* 기존 할 일 목록 */}
+                    <div className={S.todoListContainer}>
+                        {tasks.map((item, index) => (
+                            <TodoInput
+                                key={index}
+                                isAdd={true}
+                                value={item.content}
+                                isCompleted={item.isCompleted}
+                                onToggle={() => handleToggleTask(index)}
+                                onDelete={() => deleteTask(index)} // 삭제 기능 추가
+                            />
+                        ))}
+                    </div>
+                </div>
             </div>
-        </div>
+        </Portal>
     );
 }
 
 export default TodoModal;
-
-// 추가작업이 필요합니다..
-// 명세를 깊게 읽지않아서 타이머 기능 부터 구현하다보니 완전히 꼬여버렸네요 ㅠㅠ
-// 다음주까지 최대한 완성해보겠습니다!
