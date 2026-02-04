@@ -3,15 +3,9 @@ import type {
     responseTimer,
     requestTiemr,
     Task,
-    pausedTimerData,
+    requestPutTimer,
 } from "@/api/timer";
-import {
-    postTimer,
-    pusedTimer,
-    deleteTimer,
-    getTimer,
-    updateTimer,
-} from "@/api/timer";
+import { postTimer, deleteTimer, getTimer, updateTimer } from "@/api/timer";
 import { calcElapsedSeconds, secondsToTime } from "@/utils/time";
 
 interface InitTimerParams {
@@ -46,22 +40,19 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [todayGoal, setTodayGoal] = useState("");
     const [timerId, setTimerId] = useState<string>();
-
     const [currentSessionStart, setCurrentSessionStart] = useState<string>("");
     const [accumulatedSeconds, setAccumulatedSeconds] = useState(0);
     const [existingSplitTimes, setExistingSplitTimes] = useState<
         Array<{ date: string; timeSpent: number }>
     >([]);
 
-    // 👍 최신 state를 ref로 관리 (클로저 문제 해결)
     const latestStateRef = useRef({
         timerId,
         currentSessionStart,
         existingSplitTimes,
         tasks,
     });
-
-    // State 변경될 때마다 ref 업데이트
+    // state를 ref로 관리 (클로저 문제 해결)
     useEffect(() => {
         latestStateRef.current = {
             timerId,
@@ -70,8 +61,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             tasks,
         };
     }, [timerId, currentSessionStart, existingSplitTimes, tasks]);
-
-    // 서버에서 기존 타이머 가져오기
+    // State 변경될 때마다 ref 업데이트
     useEffect(() => {
         const fetchTimer = async () => {
             try {
@@ -81,7 +71,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
 
                 console.log("서버 타이머:", timer);
 
-                // 1. splitTimes 총합 계산
+                // splitTimes 총합 계산
                 const totalSplitTimeMs =
                     timer.splitTimes?.reduce((sum, split) => {
                         return sum + split.timeSpent;
@@ -90,27 +80,31 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                     totalSplitTimeMs / 1000,
                 );
 
-                // 2. LocalStorage에서 정지 상태 확인
+                // LocalStorage에서 정지 상태 확인
                 const wasPaused =
                     localStorage.getItem(`timer_${timer.timerId}_paused`) ===
                     "true";
 
                 if (wasPaused) {
-                    console.log("✅ 정지 상태로 복구");
+                    console.log("정지 상태로 복구");
 
                     // splitTimes 총합으로 시간 복구
                     setTotalSeconds(totalSplitTimeSeconds);
                     setTimerId(timer.timerId);
                     setTimerRunning(false);
-                    setTasks(timer.tasks || []);
-                    setTodayGoal(timer.todayGoal || "");
+                    setTasks(tasks || []);
+                    //할일 관리
+                    setTodayGoal(todayGoal || "");
+                    //목표관리
                     setExistingSplitTimes(timer.splitTimes || []);
+                    //타이머 시간관리
                     setAccumulatedSeconds(totalSplitTimeSeconds);
+                    //splite타이머 배열의 spend타임의 누적값
                     setCurrentSessionStart("");
                     return;
                 }
 
-                // 3. 실행 중 상태 - 현재 세션 경과 시간 계산
+                //  실행 중 상태 - 현재 세션 경과 시간 계산
                 const currentElapsed = calcElapsedSeconds(
                     timer.startTime,
                     timer.lastUpdateTime,
@@ -123,8 +117,8 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
 
                 initializeTimer({
                     timerId: timer.timerId,
-                    goal: timer.todayGoal || "",
-                    tasks: timer.tasks || [],
+                    goal: todayGoal || "",
+                    tasks: tasks || [],
                     accumulatedSeconds: totalSplitTimeSeconds,
                     currentSessionStart: timer.lastUpdateTime,
                 });
@@ -140,7 +134,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             stopPolling();
         };
     }, []);
-
+    // 서버에서 기존 타이머 가져오기
     const initializeTimer = ({
         timerId,
         goal,
@@ -161,7 +155,18 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             setTimerRunning(false);
         }
     };
-
+    //타이머 상태 추상화함수 (타이머ID,목표,할일목록,누적시간,현재섹션시작시간)
+    const resetTimer = () => {
+        setTimerId(undefined);
+        setTotalSeconds(0);
+        setTasks([]);
+        setTodayGoal("");
+        setCurrentSessionStart("");
+        setAccumulatedSeconds(0);
+        setExistingSplitTimes([]);
+        setTimerRunning(false);
+    };
+    //타이머 정지시 전체상태 초기화 (localStorage도 초기화)
     const startInterval = (baseSeconds: number, sessionStart: string) => {
         if (intervalRef.current !== null) return;
 
@@ -183,7 +188,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         setTimerRunning(true);
         startPolling();
     };
-
+    //타이머 시작함수
     const stopInterval = () => {
         if (intervalRef.current !== null) {
             clearInterval(intervalRef.current);
@@ -191,7 +196,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         }
         setTimerRunning(false);
     };
-
+    //타이머 종료함수
     const startPolling = () => {
         if (pollingRef.current !== null) return;
 
@@ -203,12 +208,12 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 );
                 await saveCurrentSession();
             },
-            1 * 5 * 1000,
-        ); // 10분
+            1 * 60 * 1000,
+        ); // 테스트 1분
 
         console.log("자동 저장 시작 (10분 간격)");
     };
-
+    //10분마다 자동 업데이트 함수
     const stopPolling = () => {
         console.log("stopPolling 호출, 현재 ref:", pollingRef.current);
 
@@ -220,9 +225,9 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             console.log("⚠️ 이미 polling이 없음");
         }
     };
-
+    //일시정지 버튼후 업데이트 종료함수
     const saveCurrentSession = async () => {
-        console.log("🔍 saveCurrentSession 호출됨!");
+        console.log("saveCurrentSession 호출됨");
 
         // ref에서 최신 값 가져오기
         const { timerId, currentSessionStart, existingSplitTimes, tasks } =
@@ -231,14 +236,16 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("ref 값:", { timerId, currentSessionStart });
 
         if (!timerId || !currentSessionStart) {
-            console.log("❌ early return - timerId나 currentSessionStart 없음");
+            console.log("timerId나 currentSessionStart 없음");
             return;
         }
 
         try {
             const now = Date.now();
             const sessionStart = new Date(currentSessionStart).getTime();
+            //최근업데이트된 시간 계산
             const sessionElapsed = Math.floor((now - sessionStart) / 1000);
+            //현재시간 - 최근업데이트한 시간 을 초로 바꿈
 
             console.log("=== Polling 실행 ===");
             console.log("세션 경과(초):", sessionElapsed);
@@ -253,19 +260,19 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
 
             await updateTimer(timerId, {
                 splitTimes: newSplitTimes,
-                tasks,
             });
-
-            console.log("✅ 타이머 자동 저장 완료:", sessionElapsed, "초");
+            //시간 계산 해서 post
+            console.log("타이머 자동 저장 완료:", sessionElapsed, "초");
         } catch (error) {
-            console.error("❌ 자동 저장 실패:", error);
+            console.error("자동 저장 실패:", error);
         }
     };
+    //현재 섹션 포스트
 
     const start = async (goal: string, initialTasks: Task[]) => {
         // timerId가 있으면 재개 (resume)
         if (timerId) {
-            console.log("🔄 재개(resume) 시작");
+            console.log("resume시작");
 
             // 정지 상태 제거
             localStorage.removeItem(`timer_${timerId}_paused`);
@@ -301,14 +308,15 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             console.error("타이머 시작 실패:", error);
         }
     };
+    //타이머 시작 id 없으면 새로운타이머 post
 
-    const pause = async (review: string = "") => {
+    const pause = async () => {
         if (!timerId || !currentSessionStart) return;
 
-        console.log("=== Pause 시작 ===");
-        console.log("pollingRef 현재 상태:", pollingRef.current);
+        console.log("Pause 시작");
+        console.log("pollingRef:", pollingRef.current);
 
-        // 👍 interval과 polling 먼저 정리!
+        // 정지하면 polling정지
         stopInterval();
         stopPolling();
 
@@ -318,7 +326,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             const now = Date.now();
             const sessionStart = new Date(currentSessionStart).getTime();
             const sessionElapsed = Math.floor((now - sessionStart) / 1000);
-
+            //저징하면서 현재 데이터 post 진행시간 및 task
             console.log("세션 경과(초):", sessionElapsed);
 
             const newSplitTimes = [
@@ -329,31 +337,28 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 },
             ];
 
-            const pausedData: pausedTimerData = {
-                splitTimes: newSplitTimes,
-                review: review.length >= 15 ? review : undefined,
-                tasks,
+            const pausedData: requestPutTimer = {
+                splitTimes: newSplitTimes, // 현재까지 splitTime계산
             };
 
-            await pusedTimer(pausedData as any, timerId);
+            await updateTimer(timerId, pausedData);
 
-            // 👍 LocalStorage에 정지 상태 저장
+            // LocalStorage에 정지 상태 저장
             localStorage.setItem(`timer_${timerId}_paused`, "true");
-            localStorage.setItem(
-                `timer_${timerId}_total`,
-                totalSeconds.toString(),
-            );
+
+            //새로고침해도 정지상태유지
 
             setExistingSplitTimes(newSplitTimes);
             setAccumulatedSeconds(totalSeconds);
             setCurrentSessionStart("");
 
-            console.log("✅ Pause 완료");
+            console.log("Pause 완료");
         } catch (error) {
-            console.error("❌ 일시정지 실패:", error);
+            console.error("일시정지 실패:", error);
             throw error;
         }
     };
+    //일시정지 정지하면 polling stop 현재시간섹션 서버에 put
 
     const stop = async () => {
         stopInterval();
@@ -368,22 +373,18 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 localStorage.removeItem(`timer_${timerId}_total`);
             }
 
-            setTimerId(undefined);
-            setTotalSeconds(0);
-            setTasks([]);
-            setTodayGoal("");
-            setCurrentSessionStart("");
-            setAccumulatedSeconds(0);
-            setExistingSplitTimes([]);
+            resetTimer();
         } catch (error) {
             console.error("타이머 종료 실패:", error);
         }
     };
-
+    //타이머 정지(초기화)
     const addTask = (task: Task) => setTasks(prev => [...prev, task]);
+    //할일 추가함수 모달로 내려주기
 
     const updateTask = (index: number, task: Task) =>
         setTasks(prev => prev.map((t, i) => (i === index ? task : t)));
+    //할일 수정함수 모달로 내려주기
 
     return (
         <TimerContext.Provider
