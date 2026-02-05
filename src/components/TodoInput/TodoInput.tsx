@@ -8,6 +8,7 @@ interface TodoInputProps {
     isCompleted?: boolean;
     onToggle?: () => void;
     onDelete?: () => void;
+    isChange?: boolean;
 }
 
 function TodoInput({
@@ -18,30 +19,47 @@ function TodoInput({
     isCompleted,
     onToggle,
     onDelete,
+    isChange,
 }: TodoInputProps) {
     return (
-        <div className={`${S.container} ${isAdd ? S.add : ""}`}>
+        <div
+            className={`${S.container} ${isAdd ? S.add : ""} ${isCompleted ? S.isCompleted : ""}`}
+        >
             <input
                 placeholder="할 일을 추가해 주세요."
                 value={value}
                 onChange={onChange}
                 disabled={isAdd} // 목록에서는 수정 불가
             />
-            {isAdd ? (
-                <>
-                    <input
-                        type="checkbox"
-                        checked={isCompleted}
-                        onChange={onToggle}
-                        value={value}
-                    />
-                    {onDelete && <button onClick={onDelete}>삭제</button>}
-                </>
-            ) : (
-                <button className={S.button} onClick={onClick}>
-                    추가
-                </button>
-            )}
+            <div className={S.addInput}>
+                {isAdd ? (
+                    <>
+                        <input
+                            className={S.checkbox}
+                            type="checkbox"
+                            checked={isCompleted}
+                            onChange={onToggle}
+                            value={value}
+                        />
+
+                        {onDelete &&
+                            (isChange ? (
+                                <button
+                                    className={S.deleteButton}
+                                    onClick={onDelete}
+                                >
+                                    삭제
+                                </button>
+                            ) : (
+                                ""
+                            ))}
+                    </>
+                ) : (
+                    <button className={S.addButton} onClick={onClick}>
+                        추가
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

@@ -35,6 +35,12 @@
     top: 42px;
 }
 .todoListContainer {
-    display: block;
+    scrollbar-width: none;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-top: 150px;
     width: 100%;
+    gap: 16px;
 }

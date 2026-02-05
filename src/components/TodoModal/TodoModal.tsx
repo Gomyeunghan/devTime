@@ -50,16 +50,19 @@ function TodoModal() {
 
                     {/* 기존 할 일 목록 */}
                     <div className={S.todoListContainer}>
-                        {tasks.map((item, index) => (
-                            <TodoInput
-                                key={index}
-                                isAdd={true}
-                                value={item.content}
-                                isCompleted={item.isCompleted}
-                                onToggle={() => handleToggleTask(index)}
-                                onDelete={() => deleteTask(index)} // 삭제 기능 추가
-                            />
-                        ))}
+                        {tasks
+                            ? tasks.map((item, index) => (
+                                  <TodoInput
+                                      key={index}
+                                      isAdd={true}
+                                      value={item.content}
+                                      isCompleted={item.isCompleted}
+                                      onToggle={() => handleToggleTask(index)}
+                                      onDelete={() => deleteTask(index)} // 삭제 기능 추가
+                                      isChange={false}
+                                  />
+                              ))
+                            : ""}
                     </div>
                 </div>
             </div>
