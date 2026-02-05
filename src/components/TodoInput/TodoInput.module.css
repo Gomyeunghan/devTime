@@ -8,7 +8,54 @@
 }
 .container.add {
     background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
 }
-.button {
+.addButton {
     white-space: nowrap;
+    color: #9ca3af;
+}
+.checkbox {
+    appearance: none;
+    width: 36px;
+    height: 36px;
+    border: 2px solid white;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.checkbox:checked {
+    background-color: #9ca3af;
+    border: 2px solid white;
+}
+
+.checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.addInput {
+    display: flex;
+    color: white;
+    flex-direction: row;
+}
+.deleteButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+}
+.add.isCompleted {
+    background-color: #9ca3af;
+    transition: all 0.2s ease;
 }
