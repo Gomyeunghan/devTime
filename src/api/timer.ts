@@ -5,7 +5,7 @@ export interface Task {
 }
 export interface requestTiemr {
     todayGoal: string;
-    task: Task[];
+    tasks: string[];
 }
 export interface requestPutTimer {
     splitTimes: { date: string; timeSpent: number }[];
@@ -13,12 +13,11 @@ export interface requestPutTimer {
 export interface responseTimer {
     timerId: "string";
     studyLogId: "string";
-    splitTimes: [
-        {
-            date: string;
-            timeSpent: number;
-        },
-    ];
+    splitTimes: {
+        date: string;
+        timeSpent: number;
+    }[];
+
     startTime: string;
     lastUpdateTime: string;
 }
@@ -26,6 +25,19 @@ export interface stopTimerData {
     splitTimes: { date: string; timeSpent: number }[];
     review: string;
     tasks: Task[];
+}
+export interface StudyLog {
+    id: string;
+    date: string;
+    todayGoal: string;
+    studyTime: number;
+    completionRate: number;
+    review: string;
+    tasks: Task[];
+}
+export interface StudyLogApiResponse {
+    success: boolean;
+    data: StudyLog;
 }
 
 export async function getTimer(): Promise<responseTimer> {
@@ -37,7 +49,7 @@ export async function postTimer(data?: requestTiemr): Promise<responseTimer> {
 }
 
 export async function deleteTimer(timerId: string) {
-    return await request(`api/timers/${timerId}`, { method: "DELETE" });
+    return await request(`/api/timers/${timerId}`, { method: "DELETE" });
 }
 export async function updateTimer(
     timerId: string,
@@ -47,4 +59,9 @@ export async function updateTimer(
         method: "PUT",
         body: data,
     });
+}
+export async function getTask(
+    studyLogId: responseTimer["studyLogId"],
+): Promise<StudyLogApiResponse> {
+    return await request(`/api/study-logs/${studyLogId}`, { method: "GET" });
 }

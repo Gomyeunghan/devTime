@@ -3,11 +3,21 @@ import Start from "@assets/start.svg";
 import StartDisabled from "@assets/StartDisabled.svg";
 import Pause from "@assets/Pause.svg";
 import Finish from "@assets/Finish.svg";
+import TodoList from "@assets/SetTodoList.svg";
 import { useTimer } from "./TimerContext";
 
 export default function Timer() {
-    const { timeFormatted, start, pause, stop, resume, timerRunning, timerId } =
-        useTimer();
+    const {
+        timeFormatted,
+        start,
+        resume,
+        pause,
+        stop,
+        timerRunning,
+        timerId,
+        setIsModalOpen,
+        isModalOpen,
+    } = useTimer();
 
     // 예시 목표/할일 (모달 추가 전)
     const exampleGoal = "오늘 목표";
@@ -21,6 +31,10 @@ export default function Timer() {
         }
     };
 
+    const handleModal = () => {
+        setIsModalOpen(!isModalOpen);
+        console.log(isModalOpen);
+    };
     return (
         <div className={S.container}>
             <div className={S.time}>
@@ -45,13 +59,19 @@ export default function Timer() {
             </div>
             <div className={S.controlBox}>
                 <button onClick={() => handleStart()} disabled={timerRunning}>
-                    <img src={timerRunning ? StartDisabled : Start} />
+                    <img
+                        src={timerRunning || !timerId ? StartDisabled : Start}
+                    />
                 </button>
                 <button onClick={pause}>
                     <img src={Pause} />
                 </button>
                 <button onClick={stop}>
                     <img src={Finish} />
+                </button>
+
+                <button onClick={() => handleModal()}>
+                    <img src={TodoList} alt="todoList" />
                 </button>
             </div>
         </div>
