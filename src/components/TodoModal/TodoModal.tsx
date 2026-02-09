@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useState, type ReactHTMLElement } from "react";
 import TodoInput from "../TodoInput/TodoInput";
 import S from "./TodoModal.module.css";
 import { useTimer } from "../Timer/TimerContext";
 import type { Task } from "@/api/timer";
 import { Portal } from "../Potal/Potal";
+import Button from "../Button/Button";
 
 function TodoModal() {
-    const { tasks, addTask, updateTask, deleteTask } = useTimer();
+    const {
+        start,
+        tasks,
+        addTask,
+        updateTask,
+        todayGoal,
+        stop,
+        isModalOpen,
+        setIsModalOpen,
+        setTodayGoal,
+    } = useTimer();
     const [newTask, setNewTask] = useState<string>("");
 
     // 새 할 일 추가
@@ -29,11 +40,25 @@ function TodoModal() {
         };
         updateTask(index, updatedTask);
     };
+    const hadleModal = () => {
+        setIsModalOpen(!isModalOpen);
+    };
+    const chagngeGoal = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTodayGoal(e.target.value);
 
-    return (
+        console.log(todayGoal);
+    };
+
+    return isModalOpen ? (
         <Portal>
             <div className={S.backdrop}>
                 <div className={S.container}>
+                    <input
+                        className={S.todayGoal}
+                        placeholder="오늘의 목표"
+                        onChange={e => chagngeGoal(e)}
+                        value={todayGoal}
+                    />
                     <div className={S.headerContainer}>
                         {/* 새 할 일 추가 */}
                         <TodoInput
@@ -44,7 +69,6 @@ function TodoModal() {
                         />
                         <div className={S.todoheader}>
                             <span>할 일 목록</span>
-                            <span>할 일 수정</span>
                         </div>
                     </div>
 
@@ -58,15 +82,31 @@ function TodoModal() {
                                       value={item.content}
                                       isCompleted={item.isCompleted}
                                       onToggle={() => handleToggleTask(index)}
-                                      onDelete={() => deleteTask(index)} // 삭제 기능 추가
                                       isChange={false}
                                   />
                               ))
                             : ""}
                     </div>
+                    <div className={S.buttonWrapper}>
+                        <Button variant="primary" onClick={hadleModal}>
+                            취소
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                handleAddTask();
+                                start(todayGoal, tasks);
+                                hadleModal();
+                            }}
+                        >
+                            저장하기
+                        </Button>
+                    </div>
                 </div>
             </div>
         </Portal>
+    ) : (
+        ""
     );
 }
 
