@@ -173,6 +173,9 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const resume = () => {
+        if (timerId) {
+            localStorage.removeItem(`timer_${timerId}_paused`);
+        }
         startInterval();
     };
 
