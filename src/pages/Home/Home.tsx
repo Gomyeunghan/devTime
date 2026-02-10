@@ -1,15 +1,13 @@
-import Tiemr from "@/components/Timer/Timer";
+import Timer from "@/components/Timer/Timer";
 import { TimerProvider } from "@/components/Timer/TimerContext";
-import TodoModal from "@/components/TodoModal/TodoModla";
+import TodoModal from "@/components/TodoModal/TodoModal";
 
 function Home() {
     return (
-        <>
-            <TimerProvider>
-                <Tiemr></Tiemr>
-                <TodoModal />
-            </TimerProvider>
-        </>
+        <TimerProvider>
+            <Timer></Timer>
+            <TodoModal />
+        </TimerProvider>
     );
 }
 
