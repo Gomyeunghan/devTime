@@ -3,7 +3,7 @@ import TodoInput from "../TodoInput/TodoInput";
 import S from "./TodoModal.module.css";
 import { useTimer } from "../Timer/TimerContext";
 import type { Task } from "@/api/timer";
-import { Portal } from "../Potal/Potal";
+import { Portal } from "../Portal/Portal";
 import Button from "../Button/Button";
 
 function TodoModal() {
@@ -40,10 +40,10 @@ function TodoModal() {
         };
         updateTask(index, updatedTask);
     };
-    const hadleModal = () => {
+    const handleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
-    const chagngeGoal = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const changeGoal = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTodayGoal(e.target.value);
 
         console.log(todayGoal);
@@ -56,7 +56,7 @@ function TodoModal() {
                     <input
                         className={S.todayGoal}
                         placeholder="오늘의 목표"
-                        onChange={e => chagngeGoal(e)}
+                        onChange={e => changeGoal(e)}
                         value={todayGoal}
                     />
                     <div className={S.headerContainer}>
@@ -88,7 +88,7 @@ function TodoModal() {
                             : ""}
                     </div>
                     <div className={S.buttonWrapper}>
-                        <Button variant="primary" onClick={hadleModal}>
+                        <Button variant="primary" onClick={handleModal}>
                             취소
                         </Button>
                         <Button
@@ -96,7 +96,7 @@ function TodoModal() {
                             onClick={() => {
                                 handleAddTask();
                                 start(todayGoal, tasks);
-                                hadleModal();
+                                handleModal();
                             }}
                         >
                             저장하기

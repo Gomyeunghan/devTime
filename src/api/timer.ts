@@ -11,8 +11,8 @@ export interface requestPutTimer {
     splitTimes: { date: string; timeSpent: number }[];
 }
 export interface responseTimer {
-    timerId: "string";
-    studyLogId: "string";
+    timerId: string;
+    studyLogId: string;
     splitTimes: {
         date: string;
         timeSpent: number;

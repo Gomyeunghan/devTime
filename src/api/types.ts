@@ -35,5 +35,5 @@ export interface LoginResponse {
     success: boolean;
 }
 export interface getTimerRequest {
-    accesToken: string;
+    accessToken: string;
 }

@@ -111,7 +111,9 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     const startPolling = () => {
         if (pollingRef.current) return;
 
-        pollingRef.current = window.setInterval(saveCurrentSession, 60_000);
+        pollingRef.current = window.setInterval(() => {
+            saveCurrentSessionRef.current();
+        }, 60_000);
     };
     //1분마다 현재 세션 저장
 
@@ -142,6 +144,11 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         setAccumulatedSeconds(totalSeconds);
     };
     // 현재 세션의 경과 시간을 서버에 저장
+    const saveCurrentSessionRef = useRef(saveCurrentSession);
+
+    useEffect(() => {
+        saveCurrentSessionRef.current = saveCurrentSession;
+    });
 
     const start = async (goal: string, initialTasks: Task[]) => {
         if (timerId) {
