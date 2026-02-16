@@ -14,8 +14,6 @@
     justify-content: center;
     align-items: center;
     padding: 48px 36px 36px 36px;
-    width: 640px;
-    height: 932px;
     background: white;
     border-radius: 16px;
 }
@@ -29,31 +27,30 @@
     top: 0;
     z-index: 10;
     background: rgba(0, 0, 0, 0.5);
+    padding-top: 100px;
 }
 .headerContainer {
     position: absolute;
     top: 150px;
 }
 .todoListContainer {
+    margin-top: 20px;
     scrollbar-width: none;
     overflow: auto;
     display: flex;
     flex-direction: column;
     height: 100%;
-    margin-top: 200px;
-    margin-bottom: 80px;
     width: 100%;
+    min-width: 568px;
+    min-height: 460px;
     gap: 16px;
 }
-.buttonWrapper {
-    display: flex;
-    position: absolute;
-    gap: 10px;
-    right: 50px;
-    bottom: 50px;
-}
+
 .todayGoal {
     font-size: 36px;
     font-weight: 700;
     color: gray;
+}
+.hidden {
+    display: none;
 }

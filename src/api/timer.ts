@@ -65,3 +65,16 @@ export async function getTask(
 ): Promise<StudyLogApiResponse> {
     return await request(`/api/study-logs/${studyLogId}`, { method: "GET" });
 }
+export async function stopTimer(tiemrid: string, data: stopTimerData) {
+    return await request(`/api/timers/${tiemrid}/stop`, {
+        method: "POST",
+        body: data,
+    });
+}
+
+export async function updateTasks(studyLogId: string, tasks: Task[]) {
+    return await request(`/api/${studyLogId}/tasks`, {
+        method: "PUT",
+        body: { tasks },
+    });
+}

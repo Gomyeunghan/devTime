@@ -4,11 +4,15 @@ import StartDisabled from "@assets/StartDisabled.svg";
 import Pause from "@assets/Pause.svg";
 import Finish from "@assets/Finish.svg";
 import TodoList from "@assets/SetTodoList.svg";
+import Reset from "@assets/Reset.png";
+import PasueDisabled from "@assets/PauseDisabled.svg";
+import FinishDisabled from "@assets/FinishDisabled.svg";
 import { useTimer } from "./TimerContext";
 
 export default function Timer() {
     const {
         timeFormatted,
+        reset,
         start,
         resume,
         pause,
@@ -20,14 +24,12 @@ export default function Timer() {
     } = useTimer();
 
     // 예시 목표/할일 (모달 추가 전)
-    const exampleGoal = "오늘 목표";
-    const exampleTasks = [{ content: "예시 할 일", isCompleted: false }];
 
     const handleStart = () => {
         if (timerId) {
             resume(); // 재개
         } else {
-            start(exampleGoal, exampleTasks); // 새로 시작
+            handleModal();
         }
     };
 
@@ -59,19 +61,26 @@ export default function Timer() {
             </div>
             <div className={S.controlBox}>
                 <button onClick={() => handleStart()} disabled={timerRunning}>
-                    <img
-                        src={timerRunning || !timerId ? StartDisabled : Start}
-                    />
+                    <img src={timerRunning ? StartDisabled : Start} />
                 </button>
                 <button onClick={pause}>
-                    <img src={Pause} />
+                    <img src={timerRunning ? Pause : PasueDisabled} />
                 </button>
                 <button onClick={stop}>
-                    <img src={Finish} />
+                    <img src={timerId ? Finish : FinishDisabled} />
                 </button>
 
-                <button onClick={() => handleModal()}>
+                <button
+                    onClick={() => handleModal()}
+                    style={timerId ? {} : { display: "none" }}
+                >
                     <img src={TodoList} alt="todoList" />
+                </button>
+                <button
+                    onClick={reset}
+                    style={timerId ? {} : { display: "none" }}
+                >
+                    <img src={Reset} alt="reset" />
                 </button>
             </div>
         </div>
