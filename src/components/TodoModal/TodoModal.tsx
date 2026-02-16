@@ -1,26 +1,34 @@
-import { useState, type ReactHTMLElement } from "react";
+import { useState } from "react";
+import BaseModal from "../BaseModal/BaseModal";
 import TodoInput from "../TodoInput/TodoInput";
+import Button from "../Button/Button";
 import S from "./TodoModal.module.css";
 import { useTimer } from "../Timer/TimerContext";
-import type { Task } from "@/api/timer";
+import { updateTasks, type Task } from "@/api/timer";
 import { Portal } from "../Portal/Portal";
-import Button from "../Button/Button";
+import AddTodoInput from "../AddTodoInput/AddTodoInput";
+import TodoItem from "../TodoItem/TodoItem";
 
 function TodoModal() {
     const {
+        timerId,
         start,
         tasks,
         addTask,
         updateTask,
         todayGoal,
-        stop,
         isModalOpen,
+        studyLogId,
         setIsModalOpen,
         setTodayGoal,
+        setTasks,
     } = useTimer();
-    const [newTask, setNewTask] = useState<string>("");
 
-    // 새 할 일 추가
+    const [newTask, setNewTask] = useState("");
+    const [editingMap, setEditingMap] = useState<Record<number, string>>({});
+    const [isEditing, setIsEditing] = useState(false);
+    const [inputEditMode, setInputEditMode] = useState(false);
+
     const handleAddTask = () => {
         if (!newTask.trim()) return;
 
@@ -28,85 +36,163 @@ function TodoModal() {
             content: newTask,
             isCompleted: false,
         };
+
         addTask(task);
-        setNewTask(""); // 초기화
+        setNewTask("");
     };
 
-    // 체크박스 토글
     const handleToggleTask = (index: number) => {
-        const updatedTask = {
+        updateTask(index, {
             ...tasks[index],
             isCompleted: !tasks[index].isCompleted,
-        };
-        updateTask(index, updatedTask);
+        });
     };
+
     const handleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
-    const changeGoal = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTodayGoal(e.target.value);
-
-        console.log(todayGoal);
+    const handleEditClick = (index: number) => {
+        setEditingMap(prev => ({
+            ...prev,
+            [index]: tasks[index].content,
+        }));
+        setInputEditMode(true);
+    };
+    const handleChange = (index: number, value: string) => {
+        setEditingMap(prev => ({
+            ...prev,
+            [index]: value,
+        }));
+    };
+    const handleStartEdit = (index: number) => {
+        setEditingMap(prev => ({
+            ...prev,
+            [index]: tasks[index].content,
+        }));
     };
 
-    return isModalOpen ? (
-        <Portal>
-            <div className={S.backdrop}>
-                <div className={S.container}>
-                    <input
-                        className={S.todayGoal}
-                        placeholder="오늘의 목표"
-                        onChange={e => changeGoal(e)}
-                        value={todayGoal}
-                    />
-                    <div className={S.headerContainer}>
-                        {/* 새 할 일 추가 */}
-                        <TodoInput
-                            isAdd={false}
-                            value={newTask}
-                            onChange={e => setNewTask(e.target.value)}
-                            onClick={handleAddTask}
-                        />
-                        <div className={S.todoheader}>
-                            <span>할 일 목록</span>
-                        </div>
-                    </div>
+    const handleConfirmEdit = (index: number) => {
+        setTasks(prev =>
+            prev.map((task, i) =>
+                i === index ? { ...task, content: editingMap[index] } : task,
+            ),
+        );
 
-                    {/* 기존 할 일 목록 */}
-                    <div className={S.todoListContainer}>
-                        {tasks
-                            ? tasks.map((item, index) => (
-                                  <TodoInput
-                                      key={index}
-                                      isAdd={true}
-                                      value={item.content}
-                                      isCompleted={item.isCompleted}
-                                      onToggle={() => handleToggleTask(index)}
-                                      isChange={false}
-                                  />
-                              ))
-                            : ""}
-                    </div>
-                    <div className={S.buttonWrapper}>
-                        <Button variant="primary" onClick={handleModal}>
-                            취소
-                        </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => {
-                                handleAddTask();
-                                start(todayGoal, tasks);
-                                handleModal();
-                            }}
+        setEditingMap(prev => {
+            const copy = { ...prev };
+            delete copy[index];
+            return copy;
+        });
+    };
+    const handleUpdateTasks = async () => {
+        if (!studyLogId) return;
+        await updateTasks(studyLogId, tasks);
+    };
+
+    const renderAction = () => {
+        if (inputEditMode) {
+            return (
+                <Button
+                    variant="secondary"
+                    onClick={() => {
+                        handleUpdateTasks();
+                        handleModal();
+                        setInputEditMode(!inputEditMode);
+                    }}
+                >
+                    수정사항 저장하기
+                </Button>
+            );
+        }
+        if (timerId) {
+            return (
+                <Button
+                    variant="secondary"
+                    onClick={() => {
+                        handleUpdateTasks();
+                        start(todayGoal, tasks);
+                        handleModal();
+                        setInputEditMode(!inputEditMode);
+                    }}
+                >
+                    저장하기
+                </Button>
+            );
+        }
+        return (
+            <Button
+                variant="secondary"
+                onClick={() => {
+                    handleAddTask();
+                    start(todayGoal, tasks);
+                    handleModal();
+                }}
+            >
+                시작하기
+            </Button>
+        );
+    };
+    return (
+        <BaseModal isOpen={isModalOpen} onClose={handleModal}>
+            <BaseModal.Header>
+                <input
+                    className={S.todayGoal}
+                    placeholder="오늘의 목표"
+                    onChange={e => setTodayGoal(e.target.value)}
+                    value={todayGoal}
+                />
+                <AddTodoInput
+                    value={newTask}
+                    onChange={e => setNewTask(e.target.value)}
+                    onAdd={handleAddTask}
+                />
+            </BaseModal.Header>
+            <BaseModal.Body>
+                <div className={S.todoListContainer}>
+                    <div>
+                        <button>할일목록</button>
+                        <button
+                            onClick={() => setInputEditMode(!inputEditMode)}
+                            className={`${inputEditMode ? S.hidden : ""}`}
                         >
-                            저장하기
-                        </Button>
+                            할일수정
+                        </button>
                     </div>
+                    {tasks.map((item, index) => {
+                        const isEditing = editingMap[index] !== undefined;
+
+                        return (
+                            <TodoItem
+                                key={index}
+                                value={
+                                    isEditing ? editingMap[index] : item.content
+                                }
+                                isCompleted={item.isCompleted}
+                                isEditing={isEditing}
+                                inputEditMode={inputEditMode}
+                                onToggle={() => handleToggleTask(index)}
+                                onDelete={() => handleDelete(index)}
+                                onEditClick={() =>
+                                    isEditing
+                                        ? handleConfirmEdit(index)
+                                        : handleStartEdit(index)
+                                }
+                                onChange={e =>
+                                    handleChange(index, e.target.value)
+                                }
+                            />
+                        );
+                    })}
                 </div>
-            </div>
-        </Portal>
-    ) : (
-        ""
+            </BaseModal.Body>
+
+            <BaseModal.Footer>
+                <Button variant="primary" onClick={handleModal}>
+                    취소
+                </Button>
+                {renderAction()}
+            </BaseModal.Footer>
+        </BaseModal>
     );
 }
 

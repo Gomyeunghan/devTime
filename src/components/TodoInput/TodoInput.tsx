@@ -1,4 +1,7 @@
 import S from "./TodoInput.module.css";
+import Edit from "@/assets/edit.svg";
+import Delete from "@/assets/delete.svg";
+import { useState } from "react";
 
 interface TodoInputProps {
     isAdd: boolean;
@@ -9,6 +12,9 @@ interface TodoInputProps {
     onToggle?: () => void;
     onDelete?: () => void;
     isChange?: boolean;
+    editMode?: boolean;
+    isEditing?: boolean;
+    onEditClick?: () => void;
 }
 
 function TodoInput({
@@ -20,6 +26,8 @@ function TodoInput({
     onToggle,
     onDelete,
     isChange,
+    editMode,
+    onEditClick,
 }: TodoInputProps) {
     return (
         <div
@@ -34,14 +42,24 @@ function TodoInput({
             <div className={S.addInput}>
                 {isAdd ? (
                     <>
-                        <input
-                            className={S.checkbox}
-                            type="checkbox"
-                            checked={isCompleted}
-                            onChange={onToggle}
-                            value={value}
-                        />
-
+                        {editMode ? (
+                            <div className={S.iconButtons}>
+                                <button onClick={onEditClick}>
+                                    <img src={Edit} alt="edit icon" />
+                                </button>
+                                <button onClick={onDelete}>
+                                    <img src={Delete} alt="delete icon" />
+                                </button>
+                            </div>
+                        ) : (
+                            <input
+                                className={S.checkbox}
+                                type="checkbox"
+                                checked={isCompleted}
+                                onChange={onToggle}
+                                value={value}
+                            />
+                        )}
                         {onDelete &&
                             (isChange ? (
                                 <button

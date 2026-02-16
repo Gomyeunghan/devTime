@@ -6,6 +6,7 @@ import {
     getTimer,
     updateTimer,
     getTask,
+    stopTimer,
 } from "@/api/timer";
 import { secondsToTime } from "@/utils/time";
 
@@ -17,14 +18,19 @@ interface TimerContextType {
     todayGoal: string;
     isModalOpen: boolean;
     timerId?: string;
+    review: string;
+    studyLogId?: string;
     start: (todayGoal: string, tasks: Task[]) => Promise<void>;
     pause: () => Promise<void>;
     stop: () => Promise<void>;
+    reset: () => Promise<void>;
     resume: () => void;
     addTask: (task: Task) => void;
     updateTask: (index: number, task: Task) => void;
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setTodayGoal: React.Dispatch<React.SetStateAction<string>>;
+    setReview: React.Dispatch<React.SetStateAction<string>>;
+    setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -43,6 +49,10 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     const [existingSplitTimes, setExistingSplitTimes] = useState<
         { date: string; timeSpent: number }[]
     >([]);
+    const [review, setReview] = useState(
+        "오늘도 즐거운 타이머 만들기 기분이가 어떠신가요?",
+    );
+    const [studyLogId, setStudyLogId] = useState<string>();
 
     useEffect(() => {
         const fetchTimer = async () => {
@@ -51,6 +61,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 if (!timer?.timerId) return;
 
                 const studyLog = (await getTask(timer.studyLogId)).data;
+                setStudyLogId(timer.studyLogId);
 
                 const totalSplitTimeMs =
                     timer.splitTimes?.reduce(
@@ -189,7 +200,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem(`timer_${timerId}_paused`, "true");
     };
 
-    const stop = async () => {
+    const reset = async () => {
         stopInterval();
         stopPolling();
 
@@ -198,6 +209,25 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             localStorage.removeItem(`timer_${timerId}_paused`);
         }
 
+        setTimerId(undefined);
+        setTasks([]);
+        setTodayGoal("");
+        setTotalSeconds(0);
+        setAccumulatedSeconds(0);
+        setExistingSplitTimes([]);
+    };
+
+    const stop = async () => {
+        stopInterval();
+        stopPolling();
+
+        const data = {
+            splitTimes: existingSplitTimes,
+            review: review,
+            tasks: tasks,
+        };
+        if (!timerId) return;
+        await stopTimer(timerId, data);
         setTimerId(undefined);
         setTasks([]);
         setTodayGoal("");
@@ -218,16 +248,21 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 timerRunning,
                 tasks,
                 todayGoal,
+                review,
                 isModalOpen,
+                studyLogId,
                 timerId,
                 start,
                 resume,
                 pause,
                 stop,
+                reset,
                 addTask,
                 updateTask,
                 setIsModalOpen,
                 setTodayGoal,
+                setReview,
+                setTasks,
             }}
         >
             {children}

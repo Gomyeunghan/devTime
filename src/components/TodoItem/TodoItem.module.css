@@ -1,19 +1,12 @@
 .container {
-    background-color: #f0f2f5;
+    background-color: var(--primary-color);
     padding: 16px 24px;
     display: flex;
     width: 568px;
     height: 72px;
     border-radius: 10px;
-}
-.container.add {
-    background-color: var(--primary-color);
     color: white;
     font-weight: 500;
-}
-.addButton {
-    white-space: nowrap;
-    color: #9ca3af;
 }
 .checkbox {
     appearance: none;
@@ -44,23 +37,12 @@
     top: 50%;
     transform: translate(-50%, -50%);
 }
-.addInput {
-    display: flex;
-    color: white;
-    flex-direction: row;
-}
-.deleteButton {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    white-space: nowrap;
-}
-.add.isCompleted {
-    background-color: #9ca3af;
-    transition: all 0.2s ease;
-}
 .iconButtons {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.hidden {
+    display: none;
 }
