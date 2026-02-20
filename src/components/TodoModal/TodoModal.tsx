@@ -1,11 +1,9 @@
 import { useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
-import TodoInput from "../TodoInput/TodoInput";
 import Button from "../Button/Button";
 import S from "./TodoModal.module.css";
 import { useTimer } from "../Timer/TimerContext";
 import { updateTasks, type Task } from "@/api/timer";
-import { Portal } from "../Portal/Portal";
 import AddTodoInput from "../AddTodoInput/AddTodoInput";
 import TodoItem from "../TodoItem/TodoItem";
 
@@ -51,13 +49,7 @@ function TodoModal() {
     const handleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
-    const handleEditClick = (index: number) => {
-        setEditingMap(prev => ({
-            ...prev,
-            [index]: tasks[index].content,
-        }));
-        setInputEditMode(true);
-    };
+
     const handleChange = (index: number, value: string) => {
         setEditingMap(prev => ({
             ...prev,
@@ -88,6 +80,9 @@ function TodoModal() {
         if (!studyLogId) return;
         await updateTasks(studyLogId, tasks);
     };
+    const handleDelete = (index: number) => {
+        setTasks(prev => prev.filter((_, i) => i !== index));
+    };
 
     const renderAction = () => {
         if (inputEditMode) {
@@ -112,7 +107,6 @@ function TodoModal() {
                         handleUpdateTasks();
                         start(todayGoal, tasks);
                         handleModal();
-                        setInputEditMode(!inputEditMode);
                     }}
                 >
                     저장하기
@@ -135,12 +129,17 @@ function TodoModal() {
     return (
         <BaseModal isOpen={isModalOpen} onClose={handleModal}>
             <BaseModal.Header>
-                <input
-                    className={S.todayGoal}
-                    placeholder="오늘의 목표"
-                    onChange={e => setTodayGoal(e.target.value)}
-                    value={todayGoal}
-                />
+                {timerId ? (
+                    ""
+                ) : (
+                    <input
+                        className={S.todayGoal}
+                        placeholder="오늘의 목표"
+                        onChange={e => setTodayGoal(e.target.value)}
+                        value={todayGoal}
+                    />
+                )}
+
                 <AddTodoInput
                     value={newTask}
                     onChange={e => setNewTask(e.target.value)}
@@ -149,13 +148,13 @@ function TodoModal() {
             </BaseModal.Header>
             <BaseModal.Body>
                 <div className={S.todoListContainer}>
-                    <div>
-                        <button>할일목록</button>
+                    <div className={S.spanWrapper}>
+                        <span className={S.todoListTitle}>할 일 목록</span>
                         <button
                             onClick={() => setInputEditMode(!inputEditMode)}
                             className={`${inputEditMode ? S.hidden : ""}`}
                         >
-                            할일수정
+                            할 일 수정
                         </button>
                     </div>
                     {tasks.map((item, index) => {

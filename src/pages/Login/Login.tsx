@@ -14,8 +14,8 @@ import type { FieldStatus } from "@/types/feedback.type";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { login } from "@/api/login";
 import { useNavigate } from "react-router-dom";
-import Modal from "@/components/Modal/Modal";
 import { tokenStorage } from "@/utils/storage";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
 
 function Login() {
     const navigate = useNavigate();
@@ -89,9 +89,11 @@ function Login() {
     return (
         <>
             <div className={S.container}>
-                <Modal isShowModal={isShowModal} onClick={onClick}>
-                    로그인 정보를 확인해주세요
-                </Modal>
+                <ConfirmModal
+                    isOpen={isShowModal}
+                    title="로그인 정보를 다시 확인해 주세요"
+                    onConfirm={() => setShowModal(false)}
+                />
                 <img
                     src={SymbolLogo}
                     alt="devTimeLogo"

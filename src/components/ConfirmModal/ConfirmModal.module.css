@@ -1,0 +1,25 @@
+/* ConfirmModal.module.css */
+.container {
+    max-width: 360px;
+    padding: 32px 28px 28px 28px;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.description {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin-top: 12px;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}

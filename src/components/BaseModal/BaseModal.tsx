@@ -6,31 +6,35 @@ interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     children: ReactNode;
+    className?: string;
 }
 
-function Modal({ isOpen, onClose, children }: ModalProps) {
+function BaseModal({ isOpen, onClose, children, className }: ModalProps) {
     if (!isOpen) return null;
 
     return (
         <Portal>
             <div className={S.backdrop} onClick={onClose}>
-                <div className={S.container} onClick={e => e.stopPropagation()}>
+                <div
+                    className={`${S.container} ${className || ""}`}
+                    onClick={e => e.stopPropagation()}
+                >
                     {children}
                 </div>
             </div>
         </Portal>
     );
 }
-Modal.Header = function Header({ children }: { children: ReactNode }) {
+BaseModal.Header = function Header({ children }: { children: ReactNode }) {
     return <div className={S.header}>{children}</div>;
 };
 
-Modal.Body = function Body({ children }: { children: ReactNode }) {
+BaseModal.Body = function Body({ children }: { children: ReactNode }) {
     return <div className={S.body}>{children}</div>;
 };
 
-Modal.Footer = function Footer({ children }: { children: ReactNode }) {
+BaseModal.Footer = function Footer({ children }: { children: ReactNode }) {
     return <div className={S.footer}>{children}</div>;
 };
 
-export default Modal;
+export default BaseModal;

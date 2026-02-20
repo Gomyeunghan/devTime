@@ -17,6 +17,7 @@ export default function Timer() {
         resume,
         pause,
         stop,
+        todayGoal,
         timerRunning,
         timerId,
         setIsModalOpen,
@@ -39,6 +40,13 @@ export default function Timer() {
     };
     return (
         <div className={S.container}>
+            {todayGoal ? (
+                <div className={`${S.todayGoal} ${S.isRunning}`}>
+                    {todayGoal}
+                </div>
+            ) : (
+                <div className={S.todayGoal}>오늘도 열심히 달려봐요!</div>
+            )}
             <div className={S.time}>
                 <div className={S.timeCard}>
                     <span className={S.timeNumber}>{timeFormatted.hours}</span>

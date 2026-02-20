@@ -56,7 +56,7 @@ function TodoItem({
         );
     };
     return (
-        <div className={S.container}>
+        <div className={`${S.container} ${isCompleted ? S.completed : ""}`}>
             <input value={value} onChange={onChange} disabled={!isEditing} />
             {renderAction()}
         </div>

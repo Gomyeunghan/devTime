@@ -46,3 +46,6 @@
 .hidden {
     display: none;
 }
+.completed {
+    background-color: #9ca3af;
+}
