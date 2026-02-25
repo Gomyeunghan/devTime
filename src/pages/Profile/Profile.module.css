@@ -1,0 +1,50 @@
+.container {
+    background-color: white;
+    margin: auto;
+    width: 1200px;
+    height: 708px;
+    padding: 36px;
+    border-radius: 8px;
+    color: #4b5563;
+    position: relative;
+}
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.inputWrapper :nth-child(2) {
+    flex: 1;
+}
+.inputContainer {
+    display: flex;
+    padding: 16px;
+    gap: 32px;
+}
+.inputBoxLeft {
+    width: 50%;
+}
+.inputBoxRight {
+    width: 50%;
+}
+.bedge {
+    display: inline-block;
+    height: 44px;
+    background-color: #4c79ff1a;
+    padding: 12px;
+    border: 1px solid var(--primary-color);
+    font-size: 14px;
+    border-radius: 8px;
+    color: var(--primary-color);
+    text-align: center;
+    line-height: 18px;
+}
+.buttonWrapper {
+    gap: 16px;
+    position: absolute;
+    right: 50px;
+    display: flex;
+}
+.imgBox {
+    padding: 16px;
+}
