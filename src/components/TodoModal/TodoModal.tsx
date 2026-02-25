@@ -1,16 +1,15 @@
 import { useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
-import TodoInput from "../TodoInput/TodoInput";
 import Button from "../Button/Button";
 import S from "./TodoModal.module.css";
 import { useTimer } from "../Timer/TimerContext";
 import { updateTasks, type Task } from "@/api/timer";
-import { Portal } from "../Portal/Portal";
 import AddTodoInput from "../AddTodoInput/AddTodoInput";
 import TodoItem from "../TodoItem/TodoItem";
 
 function TodoModal() {
     const {
+        review,
         timerId,
         start,
         tasks,
@@ -19,14 +18,17 @@ function TodoModal() {
         todayGoal,
         isModalOpen,
         studyLogId,
+        isTimerStop,
         setIsModalOpen,
         setTodayGoal,
         setTasks,
+        setIsTimerStop,
+        setReview,
+        handleStop,
     } = useTimer();
 
     const [newTask, setNewTask] = useState("");
     const [editingMap, setEditingMap] = useState<Record<number, string>>({});
-    const [isEditing, setIsEditing] = useState(false);
     const [inputEditMode, setInputEditMode] = useState(false);
 
     const handleAddTask = () => {
@@ -50,14 +52,9 @@ function TodoModal() {
 
     const handleModal = () => {
         setIsModalOpen(!isModalOpen);
+        setIsTimerStop(false);
     };
-    const handleEditClick = (index: number) => {
-        setEditingMap(prev => ({
-            ...prev,
-            [index]: tasks[index].content,
-        }));
-        setInputEditMode(true);
-    };
+
     const handleChange = (index: number, value: string) => {
         setEditingMap(prev => ({
             ...prev,
@@ -88,59 +85,91 @@ function TodoModal() {
         if (!studyLogId) return;
         await updateTasks(studyLogId, tasks);
     };
+    const handleDelete = (index: number) => {
+        setTasks(prev => prev.filter((_, i) => i !== index));
+    };
 
     const renderAction = () => {
-        if (inputEditMode) {
-            return (
-                <Button
-                    variant="secondary"
-                    onClick={() => {
-                        handleUpdateTasks();
-                        handleModal();
-                        setInputEditMode(!inputEditMode);
-                    }}
-                >
-                    수정사항 저장하기
-                </Button>
-            );
+        // 1. 눌렀을 때 동작과 레이블만 계산
+        let label: string;
+        let onClick: () => void;
+
+        // 우선순위 1: 타이머가 멈춘 상태 + timerId 존재 → 공부 완료하기
+        if (isTimerStop && timerId) {
+            label = "공부 완료하기";
+            onClick = () => {
+                handleStop();
+                handleModal();
+            };
         }
-        if (timerId) {
-            return (
-                <Button
-                    variant="secondary"
-                    onClick={() => {
-                        handleUpdateTasks();
-                        start(todayGoal, tasks);
-                        handleModal();
-                        setInputEditMode(!inputEditMode);
-                    }}
-                >
-                    저장하기
-                </Button>
-            );
+        // 우선순위 2: 할 일 수정 모드 → 수정사항 저장하기
+        else if (inputEditMode) {
+            label = "수정사항 저장하기";
+            onClick = () => {
+                handleUpdateTasks();
+                handleModal();
+                setInputEditMode(false);
+            };
         }
+        // 우선순위 3: 타이머 진행 중 → 저장하기
+        else if (timerId) {
+            label = "저장하기";
+            onClick = () => {
+                handleUpdateTasks();
+                start(todayGoal, tasks);
+                handleModal();
+            };
+        }
+        // 우선순위 4: 아직 시작 전 → 시작하기
+        else {
+            label = "시작하기";
+            onClick = () => {
+                handleAddTask();
+                start(todayGoal, tasks);
+                handleModal();
+            };
+        }
+
+        // 2. 실제 버튼 렌더링은 한 번만
         return (
-            <Button
-                variant="secondary"
-                onClick={() => {
-                    handleAddTask();
-                    start(todayGoal, tasks);
-                    handleModal();
-                }}
-            >
-                시작하기
+            <Button variant="secondary" onClick={onClick}>
+                {label}
             </Button>
         );
     };
-    return (
-        <BaseModal isOpen={isModalOpen} onClose={handleModal}>
-            <BaseModal.Header>
+    const headerRenderAction = () => {
+        if (timerId && isTimerStop) {
+            return (
+                <div>
+                    <h3>오늘도 수고하셨어요!!!!</h3>
+                    <span>
+                        완료한 일을 체크하고 오늘의 학습 회고를 작성해 주세요!
+                    </span>
+                </div>
+            );
+        }
+        if (timerId) {
+            return "";
+        }
+        if (!timerId) {
+            return (
                 <input
                     className={S.todayGoal}
                     placeholder="오늘의 목표"
                     onChange={e => setTodayGoal(e.target.value)}
                     value={todayGoal}
                 />
+            );
+        }
+    };
+    const onChageReview = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const changeReview = e.target.value;
+        setReview(changeReview);
+    };
+    return (
+        <BaseModal isOpen={isModalOpen} onClose={handleModal}>
+            <BaseModal.Header>
+                {headerRenderAction()}
                 <AddTodoInput
                     value={newTask}
                     onChange={e => setNewTask(e.target.value)}
@@ -149,14 +178,18 @@ function TodoModal() {
             </BaseModal.Header>
             <BaseModal.Body>
                 <div className={S.todoListContainer}>
-                    <div>
-                        <button>할일목록</button>
-                        <button
-                            onClick={() => setInputEditMode(!inputEditMode)}
-                            className={`${inputEditMode ? S.hidden : ""}`}
-                        >
-                            할일수정
-                        </button>
+                    <div className={S.spanWrapper}>
+                        <span className={S.todoListTitle}>할 일 목록</span>
+                        {tasks.length <= 0 ? (
+                            ""
+                        ) : (
+                            <button
+                                onClick={() => setInputEditMode(!inputEditMode)}
+                                className={`${inputEditMode ? S.hidden : ""}`}
+                            >
+                                할 일 수정
+                            </button>
+                        )}
                     </div>
                     {tasks.map((item, index) => {
                         const isEditing = editingMap[index] !== undefined;
@@ -184,6 +217,18 @@ function TodoModal() {
                         );
                     })}
                 </div>
+                {isTimerStop ? (
+                    <div>
+                        <label id="review">학습회고</label>
+                        <textarea
+                            value={review}
+                            className={S.reviewBox}
+                            onChange={onChageReview}
+                        ></textarea>
+                    </div>
+                ) : (
+                    ""
+                )}
             </BaseModal.Body>
 
             <BaseModal.Footer>

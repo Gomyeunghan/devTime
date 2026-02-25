@@ -54,3 +54,21 @@
 .hidden {
     display: none;
 }
+.todoListTitle {
+    font-weight: 600;
+}
+.spanWrapper {
+    display: flex;
+    justify-content: space-between;
+}
+.reviewBox {
+    background: var(--gray-200);
+    padding: 12px 16px 0px 16px;
+    height: 84px;
+    width: 100%;
+    overflow: auto;
+    border-radius: 16px;
+}
+textarea {
+    resize: none;
+}

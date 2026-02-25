@@ -1,9 +1,16 @@
 import { Outlet } from "react-router-dom";
+import Header from "./components/Header/Header";
+import { TimerProvider } from "./components/Timer/TimerContext";
 
 function App() {
     return (
         <>
-            <Outlet />
+            <TimerProvider>
+                <Header />
+                <main>
+                    <Outlet />
+                </main>
+            </TimerProvider>
         </>
     );
 }

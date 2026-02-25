@@ -56,3 +56,15 @@
     display: flex;
     gap: 90px;
 }
+.todayGoal {
+    font-family: var(--font-base);
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--primary-color);
+    opacity: 0.3;
+    margin: 40px 0px;
+}
+.isRunning {
+    color: #023e99;
+    opacity: 1;
+}
