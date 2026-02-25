@@ -8,6 +8,9 @@ import Reset from "@assets/Reset.png";
 import PasueDisabled from "@assets/PauseDisabled.svg";
 import FinishDisabled from "@assets/FinishDisabled.svg";
 import { useTimer } from "./TimerContext";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
+import { useState } from "react";
+import { tokenStorage } from "@/utils/storage";
 
 export default function Timer() {
     const {
@@ -22,13 +25,21 @@ export default function Timer() {
         timerId,
         setIsModalOpen,
         isModalOpen,
+        setIsTimerStop,
+        isTimerStop,
     } = useTimer();
 
     // 예시 목표/할일 (모달 추가 전)
 
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const handleConfirmModal = () => {
+        setIsConfirmModalOpen(!isConfirmModalOpen);
+    };
     const handleStart = () => {
         if (timerId) {
             resume(); // 재개
+        } else if (!tokenStorage.getAccessToken()) {
+            resume();
         } else {
             handleModal();
         }
@@ -36,7 +47,16 @@ export default function Timer() {
 
     const handleModal = () => {
         setIsModalOpen(!isModalOpen);
-        console.log(isModalOpen);
+    };
+
+    const handleReset = () => {
+        reset();
+        handleConfirmModal();
+    };
+    const handleStop = () => {
+        setIsTimerStop(true);
+        handleModal();
+        console.log(isTimerStop);
     };
     return (
         <div className={S.container}>
@@ -74,7 +94,7 @@ export default function Timer() {
                 <button onClick={pause}>
                     <img src={timerRunning ? Pause : PasueDisabled} />
                 </button>
-                <button onClick={stop}>
+                <button onClick={handleStop}>
                     <img src={timerId ? Finish : FinishDisabled} />
                 </button>
 
@@ -85,12 +105,20 @@ export default function Timer() {
                     <img src={TodoList} alt="todoList" />
                 </button>
                 <button
-                    onClick={reset}
+                    onClick={handleConfirmModal}
                     style={timerId ? {} : { display: "none" }}
                 >
                     <img src={Reset} alt="reset" />
                 </button>
             </div>
+            <ConfirmModal
+                title="정말 초기화하시겠습니까?"
+                confirmText="초기화"
+                cancelText="취소"
+                isOpen={isConfirmModalOpen}
+                onConfirm={handleReset}
+                onCancel={() => setIsConfirmModalOpen(false)}
+            />
         </div>
     );
 }

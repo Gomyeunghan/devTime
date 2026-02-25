@@ -20,6 +20,7 @@ interface TimerContextType {
     timerId?: string;
     review: string;
     studyLogId?: string;
+    isTimerStop: boolean;
     start: (todayGoal: string, tasks: Task[]) => Promise<void>;
     pause: () => Promise<void>;
     stop: () => Promise<void>;
@@ -31,6 +32,7 @@ interface TimerContextType {
     setTodayGoal: React.Dispatch<React.SetStateAction<string>>;
     setReview: React.Dispatch<React.SetStateAction<string>>;
     setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+    setIsTimerStop: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -53,6 +55,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         "오늘도 즐거운 타이머 만들기 기분이가 어떠신가요?",
     );
     const [studyLogId, setStudyLogId] = useState<string>();
+    const [isTimerStop, setIsTimerStop] = useState(false);
 
     useEffect(() => {
         const fetchTimer = async () => {
@@ -252,6 +255,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 isModalOpen,
                 studyLogId,
                 timerId,
+                isTimerStop,
                 start,
                 resume,
                 pause,
@@ -263,6 +267,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 setTodayGoal,
                 setReview,
                 setTasks,
+                setIsTimerStop,
             }}
         >
             {children}

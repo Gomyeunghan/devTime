@@ -9,6 +9,7 @@ import TodoItem from "../TodoItem/TodoItem";
 
 function TodoModal() {
     const {
+        review,
         timerId,
         start,
         tasks,
@@ -17,9 +18,12 @@ function TodoModal() {
         todayGoal,
         isModalOpen,
         studyLogId,
+        isTimerStop,
         setIsModalOpen,
         setTodayGoal,
         setTasks,
+        setIsTimerStop,
+        setReview,
     } = useTimer();
 
     const [newTask, setNewTask] = useState("");
@@ -48,6 +52,7 @@ function TodoModal() {
 
     const handleModal = () => {
         setIsModalOpen(!isModalOpen);
+        setIsTimerStop(false);
     };
 
     const handleChange = (index: number, value: string) => {
@@ -126,20 +131,40 @@ function TodoModal() {
             </Button>
         );
     };
+
+    const headerRenderAction = () => {
+        if (timerId && isTimerStop) {
+            return (
+                <div>
+                    <h3>오늘도 수고하셨어요!!!!</h3>
+                    <span>
+                        완료한 일을 체크하고 오늘의 학습 회고를 작성해 주세요!
+                    </span>
+                </div>
+            );
+        }
+        if (timerId) {
+            return "";
+        }
+        if (!timerId) {
+            return (
+                <input
+                    className={S.todayGoal}
+                    placeholder="오늘의 목표"
+                    onChange={e => setTodayGoal(e.target.value)}
+                    value={todayGoal}
+                />
+            );
+        }
+    };
+    const onChageReview = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const changeReview = e.target.value;
+        setReview(changeReview);
+    };
     return (
         <BaseModal isOpen={isModalOpen} onClose={handleModal}>
             <BaseModal.Header>
-                {timerId ? (
-                    ""
-                ) : (
-                    <input
-                        className={S.todayGoal}
-                        placeholder="오늘의 목표"
-                        onChange={e => setTodayGoal(e.target.value)}
-                        value={todayGoal}
-                    />
-                )}
-
+                {headerRenderAction()}
                 <AddTodoInput
                     value={newTask}
                     onChange={e => setNewTask(e.target.value)}
@@ -183,6 +208,17 @@ function TodoModal() {
                         );
                     })}
                 </div>
+                {isTimerStop ? (
+                    <div>
+                        <label id="review">학습회고</label>
+                        <textarea
+                            className={S.reviewBox}
+                            onChange={onChageReview}
+                        ></textarea>
+                    </div>
+                ) : (
+                    ""
+                )}
             </BaseModal.Body>
 
             <BaseModal.Footer>
