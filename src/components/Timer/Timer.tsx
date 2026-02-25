@@ -16,17 +16,14 @@ export default function Timer() {
     const {
         timeFormatted,
         reset,
-        start,
         resume,
         pause,
-        stop,
         todayGoal,
         timerRunning,
         timerId,
         setIsModalOpen,
         isModalOpen,
         setIsTimerStop,
-        isTimerStop,
     } = useTimer();
 
     // 예시 목표/할일 (모달 추가 전)
@@ -36,10 +33,8 @@ export default function Timer() {
         setIsConfirmModalOpen(!isConfirmModalOpen);
     };
     const handleStart = () => {
-        if (timerId) {
+        if (timerId || !tokenStorage.getAccessToken()) {
             resume(); // 재개
-        } else if (!tokenStorage.getAccessToken()) {
-            resume();
         } else {
             handleModal();
         }
@@ -53,10 +48,10 @@ export default function Timer() {
         reset();
         handleConfirmModal();
     };
-    const handleStop = () => {
+    const handleStop = async () => {
+        await pause();
         setIsTimerStop(true);
         handleModal();
-        console.log(isTimerStop);
     };
     return (
         <div className={S.container}>

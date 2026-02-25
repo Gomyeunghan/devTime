@@ -66,6 +66,7 @@ export async function getTask(
     return await request(`/api/study-logs/${studyLogId}`, { method: "GET" });
 }
 export async function stopTimer(tiemrid: string, data: stopTimerData) {
+    console.log(data);
     return await request(`/api/timers/${tiemrid}/stop`, {
         method: "POST",
         body: data,

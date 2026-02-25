@@ -23,7 +23,7 @@ interface TimerContextType {
     isTimerStop: boolean;
     start: (todayGoal: string, tasks: Task[]) => Promise<void>;
     pause: () => Promise<void>;
-    stop: () => Promise<void>;
+    handleStop: () => Promise<void>;
     reset: () => Promise<void>;
     resume: () => void;
     addTask: (task: Task) => void;
@@ -51,9 +51,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     const [existingSplitTimes, setExistingSplitTimes] = useState<
         { date: string; timeSpent: number }[]
     >([]);
-    const [review, setReview] = useState(
-        "오늘도 즐거운 타이머 만들기 기분이가 어떠신가요?",
-    );
+    const [review, setReview] = useState("");
     const [studyLogId, setStudyLogId] = useState<string>();
     const [isTimerStop, setIsTimerStop] = useState(false);
 
@@ -194,10 +192,9 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const pause = async () => {
-        if (!timerId) return;
-
         stopInterval();
         stopPolling();
+        if (!timerId) return;
         await saveCurrentSession();
 
         localStorage.setItem(`timer_${timerId}_paused`, "true");
@@ -219,8 +216,9 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
         setAccumulatedSeconds(0);
         setExistingSplitTimes([]);
     };
+    const handleStop = async () => {
+        console.log("click");
 
-    const stop = async () => {
         stopInterval();
         stopPolling();
 
@@ -229,6 +227,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             review: review,
             tasks: tasks,
         };
+
         if (!timerId) return;
         await stopTimer(timerId, data);
         setTimerId(undefined);
@@ -259,7 +258,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 start,
                 resume,
                 pause,
-                stop,
+                handleStop,
                 reset,
                 addTask,
                 updateTask,
