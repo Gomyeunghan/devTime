@@ -3,16 +3,37 @@ import S from "./Profile.module.css";
 import DefultProfile from "@assets/Profile.jpg";
 import Button from "@/components/Button/Button";
 import { useEffect, useState } from "react";
-import { getProfile } from "@/api/profile";
+import { getProfile, type responseProfile } from "@/api/profile";
+import Dropdown from "@/components/Dropdown/Dropdown";
+
+const CAREER_OPTIONS = ["경력없음", "0-3년", "4-7년", "8-10년", "11년이상"];
+const PURPOSE_OPTIONS = [
+    "취업준비",
+    "이직준비",
+    "단순 개발 역량 향상",
+    "회사 내 프로젝트 원활하게 수행",
+    "기타((직접입력)",
+];
 
 function Profile() {
-    const [nickName, setNickName] = useState("");
+    const [profileDate, setProfileDate] = useState<responseProfile | null>(
+        null,
+    );
+
     useEffect(() => {
         const responesProfile = async () => {
             try {
                 const fetchProifle = await getProfile();
                 if (!fetchProifle) return;
-                setNickName(fetchProifle.nickname);
+                setProfileDate(prev => ({
+                    ...prev,
+                    nickname: fetchProifle.nickname,
+                    carrer: fetchProifle.carrer,
+                    purpose: fetchProifle.purpose,
+                    goal: fetchProifle.goal,
+                    stack: fetchProifle.stack,
+                    prfileImage: fetchProifle.prfileImage,
+                }));
             } catch (error) {
                 console.error("eerror");
             }
@@ -21,7 +42,14 @@ function Profile() {
         responesProfile();
     }, []);
 
-    console.log(nickName);
+    const handlePurposeChange = (value: string) => {
+        setProfileDate(prev =>
+            prev
+                ? { ...prev, purpose: value as responseProfile["purpose"] }
+                : prev,
+        );
+    };
+
     return (
         <>
             <div className={S.container}>
@@ -42,7 +70,7 @@ function Profile() {
                                 }}
                                 placeholder="변경할 닉네임을 입력해주세요."
                                 isValid={true}
-                                value={nickName}
+                                value={profileDate?.nickname || ""}
                             />
 
                             <Button
@@ -55,17 +83,15 @@ function Profile() {
                                 중복확인
                             </Button>
                         </div>
-                        <Input
+                        <Dropdown
                             inputLabel="공부 목적"
-                            name="nickName"
-                            type="text"
-                            feedBackText=""
-                            onChange={() => {
-                                return;
+                            options={PURPOSE_OPTIONS}
+                            onChange={value => {
+                                handlePurposeChange(value);
                             }}
-                            placeholder="공부 목적을 입력해 주세요."
-                            isValid={true}
+                            value={profileDate?.purpose ?? "취업준비"}
                         />
+
                         <Input
                             inputLabel="새 비밀번호"
                             name="nickName"
@@ -90,16 +116,13 @@ function Profile() {
                         />
                     </div>
                     <div className={S.inputBoxLeft}>
-                        <Input
-                            inputLabel="개발경력"
-                            name="nickName"
-                            type="text"
-                            feedBackText="중복확인이필요합니다."
+                        <Dropdown
+                            inputLabel="개발 경력"
+                            options={CAREER_OPTIONS}
                             onChange={() => {
                                 return;
                             }}
-                            placeholder="ss"
-                            isValid={true}
+                            value={profileDate?.carrer ?? "경력없음"}
                         />
                         <Input
                             inputLabel="공부목표"

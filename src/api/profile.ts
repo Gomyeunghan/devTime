@@ -1,15 +1,28 @@
 import { request } from "./client";
 
+const CAREER_OPTIONS = [
+    "경력없음",
+    "0-3년",
+    "4-7년",
+    "8-10년",
+    "11년이상",
+] as const;
+const PURPOSE_OPTIONS = [
+    "취업준비",
+    "이직준비",
+    "단순 개발 역량 향상",
+    "회사 내 프로젝트 원활하게 수행",
+    "기타((직접입력)",
+] as const;
+
 export interface responseProfile {
-    email: string;
     nickname: string;
-    profile: {
-        career: string;
-        purpose: string;
-        goal: string;
-        techStacks: string[];
-        profileImage: string;
-    };
+    carrer?: (typeof CAREER_OPTIONS)[number];
+    purpose?: (typeof PURPOSE_OPTIONS)[number];
+    goal?: string;
+    stack?: string[];
+    prfileImage?: string;
+    password?: string;
 }
 
 export async function getProfile(): Promise<responseProfile> {

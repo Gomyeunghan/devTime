@@ -1,11 +1,12 @@
 import Union from "@assets/Union.png";
 import S from "./Header.module.css";
 import { Link } from "react-router-dom";
-import { useTimer } from "../Timer/TimerContext";
 import { tokenStorage } from "@/utils/storage";
+import useAuthStore from "@/store/authStore";
 
 function Header() {
-    const { timerId } = useTimer();
+    const { isLoggedIn } = useAuthStore(state => state);
+    console.log(isLoggedIn);
     return (
         <header className={S.header}>
             <div className={S.container}>
@@ -19,7 +20,7 @@ function Header() {
                     <Link to="ranking">랭킹</Link>
                 </nav>
             </div>
-            {tokenStorage.getAccessToken() || timerId ? (
+            {tokenStorage.getAccessToken() || isLoggedIn ? (
                 <Link to="profile">프로필</Link>
             ) : (
                 <nav className={S.navWrapper}>

@@ -1,3 +1,4 @@
+import useAuthStore from "@/store/authStore";
 import { tokenStorage } from "@/utils/storage";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -32,6 +33,9 @@ export async function request<T>(
     if (!response.ok) {
         throw await parseError(response);
     }
-
+    if (response.status === 401) {
+        useAuthStore.getState().logout();
+        throw await parseError(response);
+    }
     return response.json();
 }

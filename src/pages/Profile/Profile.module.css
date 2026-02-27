@@ -24,6 +24,9 @@
 .inputBoxLeft {
     width: 50%;
 }
+.inputBoxLeft :nth-child(1) {
+    margin-bottom: 8px;
+}
 .inputBoxRight {
     width: 50%;
 }
