@@ -111,7 +111,7 @@ function Signup() {
             setNicknameStatus(status);
             setNicknameMessage(result.message);
         } catch (error) {
-            setNicknameStatus("ERROR");
+            setNicknameStatus(error);
         }
     };
     const nicknameFeedbackMessage =

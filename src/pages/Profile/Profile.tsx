@@ -5,6 +5,9 @@ import Button from "@/components/Button/Button";
 import { useEffect, useState } from "react";
 import { getProfile, type responseProfile } from "@/api/profile";
 import Dropdown from "@/components/Dropdown/Dropdown";
+import { validatePassword, validatePasswordConfirm } from "@/utils/validation";
+import { debounce } from "@/utils/debounce";
+import { getStack } from "@/api/stack";
 
 const CAREER_OPTIONS = ["경력없음", "0-3년", "4-7년", "8-10년", "11년이상"];
 const PURPOSE_OPTIONS = [
@@ -16,9 +19,8 @@ const PURPOSE_OPTIONS = [
 ];
 
 function Profile() {
-    const [profileDate, setProfileDate] = useState<responseProfile | null>(
-        null,
-    );
+    const [profileDate, setProfileDate] = useState<responseProfile>();
+    const [passwordConfirm, setPasswordConfirm] = useState<string>("");
 
     useEffect(() => {
         const responesProfile = async () => {
@@ -35,7 +37,7 @@ function Profile() {
                     prfileImage: fetchProifle.prfileImage,
                 }));
             } catch (error) {
-                console.error("eerror");
+                console.error(error);
             }
         };
 
@@ -49,6 +51,32 @@ function Profile() {
                 : prev,
         );
     };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setProfileDate(prev => (prev ? { ...prev, password: value } : prev));
+        console.log(value);
+    };
+
+    const handlePasswordConfirmChange = (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        setPasswordConfirm(e.target.value);
+    };
+
+    const handleStackChange = debounce(
+        async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const value = e.target.value;
+            const stacks = await getStack(value);
+            console.log(stacks);
+            setProfileDate(prev =>
+                prev
+                    ? { ...prev, stack: [...(prev.stack ?? []), value] }
+                    : prev,
+            );
+        },
+        500,
+    );
 
     return (
         <>
@@ -95,24 +123,40 @@ function Profile() {
                         <Input
                             inputLabel="새 비밀번호"
                             name="nickName"
-                            type="text"
-                            feedBackText="중복확인이필요합니다"
-                            onChange={() => {
-                                return;
+                            type="password"
+                            feedBackText={
+                                validatePassword(profileDate?.password ?? "")
+                                    ? ""
+                                    : "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."
+                            }
+                            onChange={e => {
+                                handlePasswordChange(e);
                             }}
                             placeholder="비밀번호를 입력해 주세요."
-                            isValid={true}
+                            isValid={validatePassword(
+                                profileDate?.password ?? "",
+                            )}
                         />
                         <Input
                             inputLabel="비밀번호 확인"
                             name="nickName"
-                            type="text"
-                            feedBackText=""
-                            onChange={() => {
-                                return;
+                            type="password"
+                            feedBackText={
+                                validatePasswordConfirm(
+                                    profileDate?.password ?? "",
+                                    passwordConfirm,
+                                )
+                                    ? ""
+                                    : "비밀번호가 일치하지 않습니다."
+                            }
+                            onChange={e => {
+                                handlePasswordConfirmChange(e);
                             }}
                             placeholder="비밀번호를 한 번 더 입력해 주세요."
-                            isValid={true}
+                            isValid={validatePasswordConfirm(
+                                profileDate?.password ?? "",
+                                passwordConfirm,
+                            )}
                         />
                     </div>
                     <div className={S.inputBoxLeft}>
@@ -128,11 +172,11 @@ function Profile() {
                             inputLabel="공부목표"
                             name="nickName"
                             type="text"
-                            feedBackText="중복확인이필요합니다."
+                            feedBackText=""
                             onChange={() => {
                                 return;
                             }}
-                            placeholder="ss"
+                            placeholder=""
                             isValid={true}
                         />
                         <Input
@@ -140,8 +184,8 @@ function Profile() {
                             name="nickName"
                             type="text"
                             feedBackText=""
-                            onChange={() => {
-                                return;
+                            onChange={e => {
+                                handleStackChange(e);
                             }}
                             placeholder="기술 스텍을 검색해 등록해 주세요."
                             isValid={true}

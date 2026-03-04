@@ -9,8 +9,6 @@ import {
     stopTimer,
 } from "@/api/timer";
 import { secondsToTime } from "@/utils/time";
-import { tokenStorage } from "@/utils/storage";
-import useAuthStore from "@/store/authStore";
 
 interface TimerContextType {
     totalSeconds: number;
@@ -62,10 +60,10 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
             try {
                 const timer = await getTimer();
                 if (!timer?.timerId) return;
-                useAuthStore.getState().isLoggedIn ||
-                    tokenStorage.getAccessToken();
+
                 const studyLog = (await getTask(timer.studyLogId)).data;
                 setStudyLogId(timer.studyLogId);
+                console.log(timer);
 
                 const totalSplitTimeMs =
                     timer.splitTimes?.reduce(

@@ -81,6 +81,7 @@ function Login() {
             navigate("/");
             tokenStorage.setAccessToken(result.accessToken);
             tokenStorage.setRefreshToken(result.refreshToken);
+            useAuthStore.getState().isLoggedIn = true;
         } catch (error) {
             if (error instanceof Error) {
                 setShowModal(!isShowModal);

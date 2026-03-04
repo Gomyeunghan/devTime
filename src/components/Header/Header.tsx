@@ -20,7 +20,7 @@ function Header() {
                     <Link to="ranking">랭킹</Link>
                 </nav>
             </div>
-            {tokenStorage.getAccessToken() || isLoggedIn ? (
+            {tokenStorage.getAccessToken() && isLoggedIn ? (
                 <Link to="profile">프로필</Link>
             ) : (
                 <nav className={S.navWrapper}>

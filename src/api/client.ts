@@ -10,6 +10,10 @@ interface RequestOptions {
 
 async function parseError(response: Response): Promise<Error> {
     let message = "처리중 에러발생";
+    if (response.status === 401) {
+        useAuthStore.getState().logout();
+        console.log("logout");
+    }
     try {
         const data = await response.json();
         message = data?.error?.message || message;
@@ -33,9 +37,6 @@ export async function request<T>(
     if (!response.ok) {
         throw await parseError(response);
     }
-    if (response.status === 401) {
-        useAuthStore.getState().logout();
-        throw await parseError(response);
-    }
+
     return response.json();
 }
