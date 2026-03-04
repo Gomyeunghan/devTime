@@ -21,7 +21,7 @@ function Header() {
                 </nav>
             </div>
             {tokenStorage.getAccessToken() && isLoggedIn ? (
-                <Link to="profile">프로필</Link>
+                <Link to="myPage">마이페이지</Link>
             ) : (
                 <nav className={S.navWrapper}>
                     <Link to="login">로그인</Link>

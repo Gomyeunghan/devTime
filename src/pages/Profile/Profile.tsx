@@ -1,14 +1,14 @@
-import Input from "@/components/Input/Input";
-import S from "./Profile.module.css";
-import DefultProfile from "@assets/Profile.jpg";
-import Button from "@/components/Button/Button";
-import { useEffect, useState } from "react";
-import { getProfile, type responseProfile } from "@/api/profile";
 import Dropdown from "@/components/Dropdown/Dropdown";
-import { validatePassword, validatePasswordConfirm } from "@/utils/validation";
+import S from "./Profile.module.css";
+import Logo from "@assets/Logo_white.png";
+import { useEffect, useRef, useState } from "react";
+import { getProfile, type responseProfile } from "@/api/profile";
+import Input from "@/components/Input/Input";
 import { debounce } from "@/utils/debounce";
+import type { StackItem, StackResult } from "../MyPage/MyPage";
 import { getStack } from "@/api/stack";
-
+import Button from "@/components/Button/Button";
+import { Link } from "react-router-dom";
 const CAREER_OPTIONS = ["경력없음", "0-3년", "4-7년", "8-10년", "11년이상"];
 const PURPOSE_OPTIONS = [
     "취업준비",
@@ -20,21 +20,38 @@ const PURPOSE_OPTIONS = [
 
 function Profile() {
     const [profileDate, setProfileDate] = useState<responseProfile>();
-    const [passwordConfirm, setPasswordConfirm] = useState<string>("");
+    const [stackOptions, setStackOptions] = useState<StackItem[]>([]);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [value, setValue] = useState<string>("");
+    const debouncedSearch = useRef(
+        debounce(async (keyword: string) => {
+            if (!keyword) {
+                setStackOptions([]);
+                return;
+            }
+            await getStack<StackResult>(keyword).then(res =>
+                setStackOptions(res.results),
+            );
+            console.log(keyword, "keyword");
+        }, 500),
+    ).current;
 
     useEffect(() => {
         const responesProfile = async () => {
             try {
                 const fetchProifle = await getProfile();
+                console.log(fetchProifle);
                 if (!fetchProifle) return;
                 setProfileDate(prev => ({
                     ...prev,
                     nickname: fetchProifle.nickname,
-                    carrer: fetchProifle.carrer,
+                    carrer: fetchProifle.career,
                     purpose: fetchProifle.purpose,
                     goal: fetchProifle.goal,
                     stack: fetchProifle.stack,
-                    prfileImage: fetchProifle.prfileImage,
+                    prfileImage: "sss",
                 }));
             } catch (error) {
                 console.error(error);
@@ -44,6 +61,13 @@ function Profile() {
         responesProfile();
     }, []);
 
+    const handleCarrerChange = (value: string) => {
+        setProfileDate(prev =>
+            prev
+                ? { ...prev, carrer: value as responseProfile["career"] }
+                : prev,
+        );
+    };
     const handlePurposeChange = (value: string) => {
         setProfileDate(prev =>
             prev
@@ -51,171 +75,131 @@ function Profile() {
                 : prev,
         );
     };
-
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setProfileDate(prev => (prev ? { ...prev, password: value } : prev));
-        console.log(value);
+    const handleGoal = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setProfileDate(prev =>
+            prev ? { ...prev, goal: e.target.value } : prev,
+        );
     };
-
-    const handlePasswordConfirmChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        setPasswordConfirm(e.target.value);
+    const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(e.target.value);
+        debouncedSearch(e.target.value);
     };
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPreviewImage(URL.createObjectURL(file));
+    };
+    const addStack = (stackIndex: number) => {
+        setProfileDate(prev => {
+            if (!prev) return prev;
+            const selectedStack = stackOptions[stackIndex];
+            console.log(stackOptions[stackIndex], "selectedStack");
+            if (!selectedStack) return prev;
+            const isAlreadyAdded = prev.stack?.includes(selectedStack.name);
+            if (isAlreadyAdded) return prev;
+            const updatedStack = prev.stack
+                ? [...prev.stack, selectedStack.name]
+                : [selectedStack.name];
 
-    const handleStackChange = debounce(
-        async (e: React.ChangeEvent<HTMLInputElement>) => {
-            const value = e.target.value;
-            const stacks = await getStack(value);
-            console.log(stacks);
-            setProfileDate(prev =>
-                prev
-                    ? { ...prev, stack: [...(prev.stack ?? []), value] }
-                    : prev,
-            );
-        },
-        500,
-    );
-
+            return { ...prev, stack: updatedStack };
+        });
+        setValue("");
+        setStackOptions([]);
+    };
     return (
-        <>
-            <div className={S.container}>
-                <div className={S.imgBox}>
-                    <span>프로필 이미지</span>
-                    <img src={DefultProfile} />
-                </div>
-                <div className={S.inputContainer}>
-                    <div className={S.inputBoxRight}>
-                        <div className={S.inputWrapper}>
-                            <Input
-                                inputLabel="닉네임"
-                                name="nickName"
-                                type="text"
-                                feedBackText="중복확인이필요합니다."
-                                onChange={() => {
-                                    return;
-                                }}
-                                placeholder="변경할 닉네임을 입력해주세요."
-                                isValid={true}
-                                value={profileDate?.nickname || ""}
-                            />
-
-                            <Button
-                                disabled={true}
-                                variant="secondary"
-                                onClick={() => {
-                                    return;
-                                }}
-                            >
-                                중복확인
-                            </Button>
-                        </div>
-                        <Dropdown
-                            inputLabel="공부 목적"
-                            options={PURPOSE_OPTIONS}
-                            onChange={value => {
-                                handlePurposeChange(value);
-                            }}
-                            value={profileDate?.purpose ?? "취업준비"}
-                        />
-
-                        <Input
-                            inputLabel="새 비밀번호"
-                            name="nickName"
-                            type="password"
-                            feedBackText={
-                                validatePassword(profileDate?.password ?? "")
-                                    ? ""
-                                    : "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."
-                            }
-                            onChange={e => {
-                                handlePasswordChange(e);
-                            }}
-                            placeholder="비밀번호를 입력해 주세요."
-                            isValid={validatePassword(
-                                profileDate?.password ?? "",
-                            )}
-                        />
-                        <Input
-                            inputLabel="비밀번호 확인"
-                            name="nickName"
-                            type="password"
-                            feedBackText={
-                                validatePasswordConfirm(
-                                    profileDate?.password ?? "",
-                                    passwordConfirm,
-                                )
-                                    ? ""
-                                    : "비밀번호가 일치하지 않습니다."
-                            }
-                            onChange={e => {
-                                handlePasswordConfirmChange(e);
-                            }}
-                            placeholder="비밀번호를 한 번 더 입력해 주세요."
-                            isValid={validatePasswordConfirm(
-                                profileDate?.password ?? "",
-                                passwordConfirm,
-                            )}
-                        />
-                    </div>
-                    <div className={S.inputBoxLeft}>
-                        <Dropdown
-                            inputLabel="개발 경력"
-                            options={CAREER_OPTIONS}
-                            onChange={() => {
-                                return;
-                            }}
-                            value={profileDate?.carrer ?? "경력없음"}
-                        />
-                        <Input
-                            inputLabel="공부목표"
-                            name="nickName"
-                            type="text"
-                            feedBackText=""
-                            onChange={() => {
-                                return;
-                            }}
-                            placeholder=""
-                            isValid={true}
-                        />
+        <div className={S.container}>
+            <div className={S.decorateConatainer}>
+                <img src={Logo} alt="DevTimelogoImage" />
+                <span>개발자를 위한 타이머</span>
+            </div>
+            <div className={S.profileContainer}>
+                <div
+                    style={{
+                        minWidth: "420px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "16px",
+                        alignItems: "center",
+                    }}
+                >
+                    <h1>프로필 설정</h1>
+                    <Dropdown
+                        inputLabel="개발 경력"
+                        options={CAREER_OPTIONS}
+                        onChange={value => {
+                            handleCarrerChange(value);
+                        }}
+                        value={profileDate?.career ?? "경력없음"}
+                    />
+                    <Dropdown
+                        inputLabel="공부 목적"
+                        options={PURPOSE_OPTIONS}
+                        onChange={value => {
+                            handlePurposeChange(value);
+                        }}
+                        value={profileDate?.purpose ?? "취업준비"}
+                    />
+                    <Input
+                        inputLabel="공부목표"
+                        name="nickName"
+                        type="text"
+                        feedBackText=""
+                        onChange={e => {
+                            handleGoal(e);
+                        }}
+                        placeholder=""
+                        isValid={true}
+                    />
+                    <div className={S.stackBox}>
                         <Input
                             inputLabel="공부/사용 중인 스택(선택)"
                             name="nickName"
                             type="text"
                             feedBackText=""
                             onChange={e => {
-                                handleStackChange(e);
+                                handleValueChange(e);
                             }}
                             placeholder="기술 스텍을 검색해 등록해 주세요."
                             isValid={true}
+                            value={value}
                         />
-                        <div className={S.bedge}>
-                            <span>React</span>
-                            <button>X</button>
+                        {!!stackOptions.length && (
+                            <div className={S.stackWrapper}>
+                                {stackOptions?.map((stack, index) => (
+                                    <button
+                                        key={stack.id}
+                                        onClick={() => addStack(index)}
+                                    >
+                                        <span>{stack.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        {!!profileDate?.stack?.length && (
+                            <div className={S.bedgeWapper}>
+                                {profileDate?.stack?.map((stack, index) => (
+                                    <div className={S.bedge} key={index}>
+                                        <span>{stack}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <span>프로필 이미지</span>
+                        <div className={S.addImageBox}>
+                            <button className={S.addImage}>
+                                <span>+</span>
+                            </button>
+                            <span>5MB 미만의 .png, .jpg 파일</span>
                         </div>
-                        {/* 기술스택배열로 저장해서 뿌리기  */}
+                        <Button>저장하기</Button>
+                        <div className={S.skipBox}>
+                            <span>다음에 하시겠어요?</span>
+                            <Link to="/">건너뛰기</Link>
+                        </div>
                     </div>
                 </div>
-                <div className={S.buttonWrapper}>
-                    <Button
-                        onClick={() => {
-                            return;
-                        }}
-                        variant="secondary"
-                    >
-                        취소
-                    </Button>
-                    <Button
-                        onClick={() => {}}
-                        variant="secondary"
-                        disabled={true}
-                    >
-                        변경사항저장
-                    </Button>
-                </div>
             </div>
-        </>
+        </div>
     );
 }
 

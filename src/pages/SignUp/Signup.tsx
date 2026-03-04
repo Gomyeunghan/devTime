@@ -20,6 +20,7 @@ import type { FieldStatus } from "@/types/feedback.type";
 import { NICKNAME_MESSAGE } from "@/constants/messages/nickname";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { useNavigate } from "react-router-dom";
+import { postProfile } from "@/api/profile";
 
 function Signup() {
     const navigate = useNavigate();
