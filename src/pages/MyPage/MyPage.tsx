@@ -8,15 +8,8 @@ import Dropdown from "@/components/Dropdown/Dropdown";
 import { validatePassword, validatePasswordConfirm } from "@/utils/validation";
 import { debounce } from "@/utils/debounce";
 import { getStack } from "@/api/stack";
+import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
 
-const CAREER_OPTIONS = ["경력없음", "0-3년", "4-7년", "8-10년", "11년이상"];
-const PURPOSE_OPTIONS = [
-    "취업준비",
-    "이직준비",
-    "단순 개발 역량 향상",
-    "회사 내 프로젝트 원활하게 수행",
-    "기타((직접입력)",
-];
 export interface StackItem {
     id: number;
     name: string;

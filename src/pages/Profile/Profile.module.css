@@ -86,6 +86,7 @@
     border-radius: 8px;
     color: var(--primary-color);
     font-size: 36px;
+    cursor: pointer;
 }
 .skipBox {
     margin-top: 16px;

@@ -2,29 +2,32 @@ import Dropdown from "@/components/Dropdown/Dropdown";
 import S from "./Profile.module.css";
 import Logo from "@assets/Logo_white.png";
 import { useEffect, useRef, useState } from "react";
-import { getProfile, type responseProfile } from "@/api/profile";
+import {
+    getParsingUrl,
+    getProfile,
+    postProfile,
+    type requsetImage,
+    type requsetProfile,
+    type responseProfile,
+} from "@/api/profile";
 import Input from "@/components/Input/Input";
 import { debounce } from "@/utils/debounce";
 import type { StackItem, StackResult } from "../MyPage/MyPage";
 import { getStack } from "@/api/stack";
 import Button from "@/components/Button/Button";
-import { Link } from "react-router-dom";
-const CAREER_OPTIONS = ["경력없음", "0-3년", "4-7년", "8-10년", "11년이상"];
-const PURPOSE_OPTIONS = [
-    "취업준비",
-    "이직준비",
-    "단순 개발 역량 향상",
-    "회사 내 프로젝트 원활하게 수행",
-    "기타((직접입력)",
-];
+import { Link, useNavigate } from "react-router-dom";
+import useAuthStore from "@/store/authStore";
+import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
 
 function Profile() {
-    const [profileDate, setProfileDate] = useState<responseProfile>();
+    const [profileDate, setProfileDate] = useState<requsetProfile | null>(null);
     const [stackOptions, setStackOptions] = useState<StackItem[]>([]);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
+    const [selectImage, setSelectImage] = useState<requsetImage | null>(null);
     const [value, setValue] = useState<string>("");
+    const { isLoggedIn } = useAuthStore();
+
+    const navigate = useNavigate();
     const debouncedSearch = useRef(
         debounce(async (keyword: string) => {
             if (!keyword) {
@@ -39,32 +42,34 @@ function Profile() {
     ).current;
 
     useEffect(() => {
+        if (!isLoggedIn) {
+            navigate("/login");
+        }
         const responesProfile = async () => {
             try {
                 const fetchProifle = await getProfile();
                 console.log(fetchProifle);
                 if (!fetchProifle) return;
-                setProfileDate(prev => ({
-                    ...prev,
-                    nickname: fetchProifle.nickname,
-                    carrer: fetchProifle.career,
-                    purpose: fetchProifle.purpose,
+                setProfileDate({
+                    career: CAREER_OPTIONS[0],
+                    purpose: PURPOSE_OPTIONS[0],
                     goal: fetchProifle.goal,
-                    stack: fetchProifle.stack,
-                    prfileImage: "sss",
-                }));
+                    techStacks: fetchProifle.stack,
+                    profileImage: "",
+                });
             } catch (error) {
                 console.error(error);
             }
         };
 
         responesProfile();
+        console.log(profileDate);
     }, []);
 
     const handleCarrerChange = (value: string) => {
         setProfileDate(prev =>
             prev
-                ? { ...prev, carrer: value as responseProfile["career"] }
+                ? { ...prev, career: value as responseProfile["career"] }
                 : prev,
         );
     };
@@ -84,27 +89,58 @@ function Profile() {
         setValue(e.target.value);
         debouncedSearch(e.target.value);
     };
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
         const file = e.target.files?.[0];
+        console.log(file);
         if (!file) return;
         setPreviewImage(URL.createObjectURL(file));
+        setSelectImage({
+            fileName: file.name,
+            contentType: file.type,
+        });
+        if (!selectImage) return;
+        console.log("gogo");
+        await handleSaveProfileImage(selectImage);
     };
     const addStack = (stackIndex: number) => {
+        console.log(profileDate);
         setProfileDate(prev => {
             if (!prev) return prev;
             const selectedStack = stackOptions[stackIndex];
             console.log(stackOptions[stackIndex], "selectedStack");
             if (!selectedStack) return prev;
-            const isAlreadyAdded = prev.stack?.includes(selectedStack.name);
+            const isAlreadyAdded = prev.techStacks?.includes(
+                selectedStack.name,
+            );
             if (isAlreadyAdded) return prev;
-            const updatedStack = prev.stack
-                ? [...prev.stack, selectedStack.name]
+            const updatedStack = prev.techStacks
+                ? [...prev.techStacks, selectedStack.name]
                 : [selectedStack.name];
 
-            return { ...prev, stack: updatedStack };
+            return { ...prev, techStacks: updatedStack };
         });
         setValue("");
         setStackOptions([]);
+    };
+    const handleSaveProfileImage = async (updateImageFile: requsetImage) => {
+        if (!updateImageFile) return;
+        const parsingUrl = await getParsingUrl(updateImageFile);
+        setProfileDate(prev =>
+            prev
+                ? {
+                      ...prev,
+                      profileImage: parsingUrl.key,
+                  }
+                : prev,
+        );
+        console.log(parsingUrl);
+    };
+    const handleSubmit = async () => {
+        if (!profileDate) return;
+        const successProfile = await postProfile(profileDate);
+        console.log(successProfile);
     };
     return (
         <div className={S.container}>
@@ -129,7 +165,7 @@ function Profile() {
                         onChange={value => {
                             handleCarrerChange(value);
                         }}
-                        value={profileDate?.career ?? "경력없음"}
+                        value={profileDate?.career ?? "경력 없음"}
                     />
                     <Dropdown
                         inputLabel="공부 목적"
@@ -137,7 +173,7 @@ function Profile() {
                         onChange={value => {
                             handlePurposeChange(value);
                         }}
-                        value={profileDate?.purpose ?? "취업준비"}
+                        value={profileDate?.purpose ?? "취업 준비"}
                     />
                     <Input
                         inputLabel="공부목표"
@@ -175,23 +211,58 @@ function Profile() {
                                 ))}
                             </div>
                         )}
-                        {!!profileDate?.stack?.length && (
+                        {!!profileDate?.techStacks?.length && (
                             <div className={S.bedgeWapper}>
-                                {profileDate?.stack?.map((stack, index) => (
-                                    <div className={S.bedge} key={index}>
-                                        <span>{stack}</span>
-                                    </div>
-                                ))}
+                                {profileDate?.techStacks?.map(
+                                    (techStacks, index) => (
+                                        <div className={S.bedge} key={index}>
+                                            <span>{techStacks}</span>
+                                        </div>
+                                    ),
+                                )}
                             </div>
                         )}
                         <span>프로필 이미지</span>
                         <div className={S.addImageBox}>
-                            <button className={S.addImage}>
-                                <span>+</span>
-                            </button>
+                            <input
+                                type="file"
+                                id="fileInput"
+                                style={{ display: "none" }}
+                                onChange={handleImageChange}
+                            />
+
+                            <div>
+                                {previewImage ? (
+                                    <label
+                                        htmlFor="fileInput"
+                                        className={S.addImage}
+                                    >
+                                        <img
+                                            src={previewImage}
+                                            style={{
+                                                width: "100px",
+                                                height: "100px",
+                                            }}
+                                        />
+                                    </label>
+                                ) : (
+                                    <label
+                                        htmlFor="fileInput"
+                                        className={S.addImage}
+                                    >
+                                        +
+                                    </label>
+                                )}
+                            </div>
+
                             <span>5MB 미만의 .png, .jpg 파일</span>
                         </div>
-                        <Button>저장하기</Button>
+                        <Button
+                            onClick={() => handleSubmit()}
+                            variant="primary"
+                        >
+                            저장하기
+                        </Button>
                         <div className={S.skipBox}>
                             <span>다음에 하시겠어요?</span>
                             <Link to="/">건너뛰기</Link>

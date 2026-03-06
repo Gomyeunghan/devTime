@@ -8,7 +8,7 @@ function Dropdown({
     onChange,
 }: {
     inputLabel?: string;
-    options: string[];
+    options: readonly string[];
     value: string;
     onChange: (value: string) => void;
 }) {
@@ -22,7 +22,8 @@ function Dropdown({
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const handleSelect = (option: string) => {
