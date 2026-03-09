@@ -24,7 +24,7 @@ const DEFAULT_PROFILE: requsetProfile = {
 };
 
 export interface responseProfile {
-    nickname: string;
+    nickname?: string;
     career?: (typeof CAREER_OPTIONS)[number];
     purpose?: (typeof PURPOSE_OPTIONS)[number];
     goal?: string;
@@ -61,7 +61,7 @@ export async function getProfile(): Promise<responseGetProfile> {
         method: "GET",
     });
 }
-export async function updateProfile(data: requsetProfile): Promise<void> {
+export async function updateProfile(data: responseProfile): Promise<void> {
     await request("/api/profile", {
         method: "PUT",
         body: data,

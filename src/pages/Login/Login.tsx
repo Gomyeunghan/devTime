@@ -87,6 +87,7 @@ function Login() {
             tokenStorage.setAccessToken(result.accessToken);
             tokenStorage.setRefreshToken(result.refreshToken);
             useAuthStore.getState().isLoggedIn = true;
+            useAuthStore.getState().isFirstLogin = result.isFirstLogin;
         } catch (error) {
             if (error instanceof Error) {
                 setShowModal(!isShowModal);

@@ -16,9 +16,10 @@ import { debounce } from "@/utils/debounce";
 import type { StackItem, StackResult } from "../MyPage/MyPage";
 import { getStack } from "@/api/stack";
 import Button from "@/components/Button/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
+import ProfileImage from "@/components/ProfileImage/ProfileImage";
 
 function Profile() {
     const [profileDate, setProfileDate] = useState<requsetProfile | null>(null);
@@ -26,7 +27,7 @@ function Profile() {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [selectImage, setSelectImage] = useState<requsetImage | null>(null);
     const [value, setValue] = useState<string>("");
-    const { isLoggedIn } = useAuthStore();
+    const { isLoggedIn, isFirstLogin } = useAuthStore();
 
     const navigate = useNavigate();
     const debouncedSearch = useRef(
@@ -45,29 +46,19 @@ function Profile() {
     useEffect(() => {
         if (!isLoggedIn) {
             navigate("/login");
+            return;
         }
-        const responesProfile = async () => {
-            try {
-                const defaultProfile = await postProfile();
-                const fetchProifle = await getProfile();
-
-                console.log(defaultProfile);
-                console.log(fetchProifle);
-                if (!fetchProifle) return;
-                setProfileDate({
-                    career: CAREER_OPTIONS[0],
-                    purpose: PURPOSE_OPTIONS[0],
-                    goal: fetchProifle.profile.goal,
-                    techStacks: [],
-                    profileImage: "",
-                });
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        responesProfile();
-        console.log(profileDate);
+        if (!isFirstLogin) {
+            navigate("/");
+            return;
+        }
+        setProfileDate({
+            career: CAREER_OPTIONS[0],
+            purpose: PURPOSE_OPTIONS[0],
+            goal: "",
+            techStacks: [],
+            profileImage: "",
+        });
     }, []);
 
     const handleCarrerChange = (value: string) => {
@@ -141,10 +132,16 @@ function Profile() {
         );
         console.log(parsingUrl);
     };
+    const handleSkip = async () => {
+        await postProfile();
+        navigate("/");
+    };
+
     const handleSubmit = async () => {
         if (!profileDate) return;
-        const successProfile = await updateProfile(profileDate);
-        console.log(successProfile);
+        await postProfile();
+        await updateProfile(profileDate);
+        navigate("/");
     };
 
     return (
@@ -228,53 +225,23 @@ function Profile() {
                             </div>
                         )}
                         <span>프로필 이미지</span>
-                        <div className={S.addImageBox}>
-                            <input
-                                type="file"
-                                id="fileInput"
-                                style={{ display: "none" }}
-                                onChange={handleImageChange}
-                            />
-
-                            <div>
-                                {previewImage ? (
-                                    <label
-                                        htmlFor="fileInput"
-                                        className={S.addImage}
-                                    >
-                                        <img
-                                            src={previewImage}
-                                            style={{
-                                                width: "100px",
-                                                height: "100px",
-                                            }}
-                                        />
-                                    </label>
-                                ) : (
-                                    <label
-                                        htmlFor="fileInput"
-                                        className={S.addImage}
-                                    >
-                                        +
-                                    </label>
-                                )}
-                            </div>
-
-                            <span>5MB 미만의 .png, .jpg 파일</span>
-                        </div>
+                        <ProfileImage
+                            previewImage={previewImage}
+                            handleImageChange={handleImageChange}
+                        />
                         <Button
                             onClick={() => handleSubmit()}
                             variant="primary"
                             disabled={
-                                !!profileDate?.techStacks?.length &&
-                                !!profileDate?.goal?.length
+                                !!!profileDate?.techStacks?.length &&
+                                !!!profileDate?.goal?.length
                             }
                         >
                             저장하기
                         </Button>
                         <div className={S.skipBox}>
                             <span>다음에 하시겠어요?</span>
-                            <Link to="/">건너뛰기</Link>
+                            <button onClick={handleSkip}>건너뛰기</button>
                         </div>
                     </div>
                 </div>

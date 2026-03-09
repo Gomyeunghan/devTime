@@ -4,8 +4,10 @@ import DefultProfile from "@assets/Profile.jpg";
 import Button from "@/components/Button/Button";
 import { useEffect, useRef, useState } from "react";
 import {
+    getParsingUrl,
     getProfile,
     updateProfile,
+    type requsetImage,
     type responseGetProfile,
     type responseProfile,
 } from "@/api/profile";
@@ -14,6 +16,9 @@ import { validatePassword, validatePasswordConfirm } from "@/utils/validation";
 import { debounce } from "@/utils/debounce";
 import { getStack } from "@/api/stack";
 import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
+import { checkNicknameDuplicate } from "@/api/signup";
+import { useNavigate } from "react-router-dom";
+import ProfileImage from "@/components/ProfileImage/ProfileImage";
 export interface StackItem {
     id: number;
     name: string;
@@ -27,9 +32,20 @@ export interface StackResult {
 
 function MyPage() {
     const [profileDate, setProfileDate] = useState<responseProfile>();
+    const [originalProfile, setOriginalProfile] = useState<responseProfile>();
     const [passwordConfirm, setPasswordConfirm] = useState<string>("");
     const [stackOptions, setStackOptions] = useState<StackItem[]>([]);
+    const [nickNameFeedbackText, setNickNameFeedbackText] =
+        useState<string>("");
+    const [nickNameFeedbackTextStatus, setNickNameFeedbackTextStatus] =
+        useState<boolean>(true);
+    const [isNickNameInputChaged, setIsNickNameInputChaged] =
+        useState<boolean>(false);
     const [value, setValue] = useState<string>("");
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+    const navigator = useNavigate();
+
     const debouncedSearch = useRef(
         debounce(async (keyword: string) => {
             if (!keyword) {
@@ -49,15 +65,19 @@ function MyPage() {
                 const fetchProifle: responseGetProfile = await getProfile();
                 console.log(fetchProifle);
                 if (!fetchProifle) return;
-                setProfileDate(prev => ({
-                    ...prev,
+                const fetched: responseProfile = {
                     nickname: fetchProifle.nickname,
                     career: fetchProifle.profile.career,
                     purpose: fetchProifle.profile.purpose,
                     goal: fetchProifle.profile.goal,
                     techStacks: fetchProifle.profile.techStacks,
-                    prfileImage: fetchProifle.profile.profileImage,
-                }));
+                    profileImage: fetchProifle.profile.profileImage,
+                };
+                setProfileDate(fetched);
+                setOriginalProfile(fetched);
+                if (fetched.profileImage) {
+                    setPreviewImage(`https://dev-time-bucket.s3.ap-northeast-2.amazonaws.com/${fetched.profileImage}`);
+                }
             } catch (error) {
                 console.error(error);
             }
@@ -102,26 +122,39 @@ function MyPage() {
         setProfileDate(prev =>
             prev ? { ...prev, nickname: e.target.value } : prev,
         );
+        setIsNickNameInputChaged(true);
     };
 
-    // const handleStackChange = debounce(
-    //     (e: React.ChangeEvent<HTMLInputElement>) => {
-    //         const value = e.target.value;
-    //         setValue(value);
-    //     },
-    //     500,
-    // );
     const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setValue(e.target.value);
         debouncedSearch(e.target.value);
     };
 
+    const hasChanges =
+        JSON.stringify(profileDate) !== JSON.stringify(originalProfile) ||
+        !!passwordConfirm;
+
+    const clickNickNameDuplicate = async () => {
+        try {
+            const result = await checkNicknameDuplicate(profileDate?.nickname);
+            console.log(result);
+            setNickNameFeedbackText(result.message);
+            setNickNameFeedbackTextStatus(result.available);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const handleSaveChanges = async () => {
         if (!profileDate) return;
-        console.log(profileDate);
+        const { nickname, ...reset } = profileDate;
+        const payload = isNickNameInputChaged ? profileDate : reset;
         try {
-            await updateProfile(profileDate);
+            await updateProfile(payload);
+            setOriginalProfile(profileDate);
+            setPasswordConfirm("");
             alert("프로필이 성공적으로 업데이트되었습니다.");
+            navigator("/");
         } catch (error) {
             console.error("프로필 업데이트 중 오류 발생:", error);
             alert("프로필 업데이트에 실패했습니다. 다시 시도해주세요.");
@@ -146,13 +179,50 @@ function MyPage() {
         setValue("");
         setStackOptions([]);
     };
+    const handleImageChange = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPreviewImage(URL.createObjectURL(file));
+        const imageInfo: requsetImage = {
+            fileName: file.name,
+            contentType: file.type,
+        };
+        await handleSaveProfileImage(imageInfo, file);
+    };
+    const handleSaveProfileImage = async (
+        updateImageFile: requsetImage,
+        file: File,
+    ) => {
+        const { presignedUrl, key } = await getParsingUrl(updateImageFile);
+        await fetch(presignedUrl, {
+            method: "PUT",
+            headers: { "Content-Type": updateImageFile.contentType },
+            body: file,
+        });
+        setProfileDate(prev =>
+            prev ? { ...prev, profileImage: key } : prev,
+        );
+    };
 
     return (
         <>
             <div className={S.container}>
                 <div className={S.imgBox}>
                     <span>프로필 이미지</span>
-                    <img src={DefultProfile} />
+                    <button
+                        onClick={() => {
+                            console.log(profileDate);
+                        }}
+                    >
+                        ddd
+                    </button>
+                    {}
+                    <ProfileImage
+                        previewImage={previewImage}
+                        handleImageChange={handleImageChange}
+                    />
                 </div>
                 <div className={S.inputContainer}>
                     <div className={S.inputBoxRight}>
@@ -161,20 +231,20 @@ function MyPage() {
                                 inputLabel="닉네임"
                                 name="nickName"
                                 type="text"
-                                feedBackText="중복확인이필요합니다."
+                                feedBackText={nickNameFeedbackText}
                                 onChange={e => {
                                     handleNickNameChange(e);
                                 }}
                                 placeholder="변경할 닉네임을 입력해주세요."
-                                isValid={true}
+                                isValid={nickNameFeedbackTextStatus}
                                 value={profileDate?.nickname || ""}
                             />
 
                             <Button
-                                disabled={true}
+                                disabled={!isNickNameInputChaged}
                                 variant="secondary"
                                 onClick={() => {
-                                    return;
+                                    clickNickNameDuplicate();
                                 }}
                             >
                                 중복확인
@@ -290,7 +360,7 @@ function MyPage() {
                 <div className={S.buttonWrapper}>
                     <Button
                         onClick={() => {
-                            console.log(profileDate);
+                            navigator("/");
                         }}
                         variant="secondary"
                     >
@@ -301,7 +371,7 @@ function MyPage() {
                             handleSaveChanges();
                         }}
                         variant="secondary"
-                        disabled={false}
+                        disabled={!hasChanges}
                     >
                         변경사항저장
                     </Button>
