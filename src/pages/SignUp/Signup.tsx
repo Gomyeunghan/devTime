@@ -20,7 +20,7 @@ import type { FieldStatus } from "@/types/feedback.type";
 import { NICKNAME_MESSAGE } from "@/constants/messages/nickname";
 import { EMAIL_MESSAGE } from "@/constants/messages/email";
 import { useNavigate } from "react-router-dom";
-import { postProfile } from "@/api/profile";
+import { postProfile, type requsetProfile } from "@/api/profile";
 
 function Signup() {
     const navigate = useNavigate();
@@ -126,7 +126,6 @@ function Signup() {
         }
         try {
             const result = await signup(formValue);
-
             alert(result.message);
             navigate("/login");
         } catch (error) {
@@ -144,7 +143,7 @@ function Signup() {
                 <span>개발자를 위한 타이머</span>
             </div>
             <div className={S.signupContainer}>
-                <div style={{ minWidth: "420px", padding: "0px 240px" }}>
+                <div style={{ minWidth: "420px", padding: "0px 100px" }}>
                     <h1>회원가입</h1>
                     <div className={S.formWrapper}>
                         <Input

@@ -78,7 +78,12 @@ function Login() {
         try {
             const result = await login(formValue);
             console.log(result);
-            navigate("/");
+            if (result.isFirstLogin) {
+                navigate("/profile");
+            } else {
+                navigate("/");
+            }
+
             tokenStorage.setAccessToken(result.accessToken);
             tokenStorage.setRefreshToken(result.refreshToken);
             useAuthStore.getState().isLoggedIn = true;

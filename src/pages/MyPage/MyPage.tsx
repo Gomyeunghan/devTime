@@ -3,13 +3,17 @@ import S from "./MyPage.module.css";
 import DefultProfile from "@assets/Profile.jpg";
 import Button from "@/components/Button/Button";
 import { useEffect, useRef, useState } from "react";
-import { getProfile, updateProfile, type responseProfile } from "@/api/profile";
+import {
+    getProfile,
+    updateProfile,
+    type responseGetProfile,
+    type responseProfile,
+} from "@/api/profile";
 import Dropdown from "@/components/Dropdown/Dropdown";
 import { validatePassword, validatePasswordConfirm } from "@/utils/validation";
 import { debounce } from "@/utils/debounce";
 import { getStack } from "@/api/stack";
 import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
-
 export interface StackItem {
     id: number;
     name: string;
@@ -42,17 +46,17 @@ function MyPage() {
     useEffect(() => {
         const responesProfile = async () => {
             try {
-                const fetchProifle = await getProfile();
+                const fetchProifle: responseGetProfile = await getProfile();
                 console.log(fetchProifle);
                 if (!fetchProifle) return;
                 setProfileDate(prev => ({
                     ...prev,
                     nickname: fetchProifle.nickname,
-                    carrer: fetchProifle.career,
-                    purpose: fetchProifle.purpose,
-                    goal: fetchProifle.goal,
-                    stack: fetchProifle.stack,
-                    prfileImage: "sss",
+                    career: fetchProifle.profile.career,
+                    purpose: fetchProifle.profile.purpose,
+                    goal: fetchProifle.profile.goal,
+                    techStacks: fetchProifle.profile.techStacks,
+                    prfileImage: fetchProifle.profile.profileImage,
                 }));
             } catch (error) {
                 console.error(error);
@@ -69,12 +73,13 @@ function MyPage() {
                 : prev,
         );
     };
-    const handleCarrerChange = (value: string) => {
+    const handleCareerChange = (value: string) => {
         setProfileDate(prev =>
             prev
-                ? { ...prev, carrer: value as responseProfile["career"] }
+                ? { ...prev, career: value as responseProfile["career"] }
                 : prev,
         );
+        console.log(profileDate);
     };
     const handleGoal = (e: React.ChangeEvent<HTMLInputElement>) => {
         setProfileDate(prev =>
@@ -128,13 +133,15 @@ function MyPage() {
             const selectedStack = stackOptions[stackIndex];
             console.log(stackOptions[stackIndex], "selectedStack");
             if (!selectedStack) return prev;
-            const isAlreadyAdded = prev.stack?.includes(selectedStack.name);
+            const isAlreadyAdded = prev.techStacks?.includes(
+                selectedStack.name,
+            );
             if (isAlreadyAdded) return prev;
-            const updatedStack = prev.stack
-                ? [...prev.stack, selectedStack.name]
+            const updatedStack = prev.techStacks
+                ? [...prev.techStacks, selectedStack.name]
                 : [selectedStack.name];
 
-            return { ...prev, stack: updatedStack };
+            return { ...prev, techStacks: updatedStack };
         });
         setValue("");
         setStackOptions([]);
@@ -226,13 +233,13 @@ function MyPage() {
                             inputLabel="개발 경력"
                             options={CAREER_OPTIONS}
                             onChange={value => {
-                                handleCarrerChange(value);
+                                handleCareerChange(value);
                             }}
-                            value={profileDate?.career ?? "경력없음"}
+                            value={profileDate?.career ?? "경력 없음"}
                         />
                         <Input
                             inputLabel="공부목표"
-                            name="nickName"
+                            name="goal"
                             type="text"
                             feedBackText=""
                             onChange={e => {
@@ -240,11 +247,12 @@ function MyPage() {
                             }}
                             placeholder=""
                             isValid={true}
+                            value={profileDate?.goal ?? ""}
                         />
 
                         <Input
                             inputLabel="공부/사용 중인 스택(선택)"
-                            name="nickName"
+                            name="stacks"
                             type="text"
                             feedBackText=""
                             onChange={e => {
@@ -266,13 +274,15 @@ function MyPage() {
                                 ))}
                             </div>
                         )}
-                        {!!profileDate?.stack?.length && (
+                        {!!profileDate?.techStacks?.length && (
                             <div className={S.bedgeWapper}>
-                                {profileDate?.stack?.map((stack, index) => (
-                                    <div className={S.bedge} key={index}>
-                                        <span>{stack}</span>
-                                    </div>
-                                ))}
+                                {profileDate?.techStacks?.map(
+                                    (stack, index) => (
+                                        <div className={S.bedge} key={index}>
+                                            <span>{stack}</span>
+                                        </div>
+                                    ),
+                                )}
                             </div>
                         )}
                     </div>

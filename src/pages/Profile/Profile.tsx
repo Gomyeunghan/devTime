@@ -6,6 +6,7 @@ import {
     getParsingUrl,
     getProfile,
     postProfile,
+    updateProfile,
     type requsetImage,
     type requsetProfile,
     type responseProfile,
@@ -47,14 +48,17 @@ function Profile() {
         }
         const responesProfile = async () => {
             try {
+                const defaultProfile = await postProfile();
                 const fetchProifle = await getProfile();
+
+                console.log(defaultProfile);
                 console.log(fetchProifle);
                 if (!fetchProifle) return;
                 setProfileDate({
                     career: CAREER_OPTIONS[0],
                     purpose: PURPOSE_OPTIONS[0],
-                    goal: fetchProifle.goal,
-                    techStacks: fetchProifle.stack,
+                    goal: fetchProifle.profile.goal,
+                    techStacks: [],
                     profileImage: "",
                 });
             } catch (error) {
@@ -139,9 +143,10 @@ function Profile() {
     };
     const handleSubmit = async () => {
         if (!profileDate) return;
-        const successProfile = await postProfile(profileDate);
+        const successProfile = await updateProfile(profileDate);
         console.log(successProfile);
     };
+
     return (
         <div className={S.container}>
             <div className={S.decorateConatainer}>
@@ -260,6 +265,10 @@ function Profile() {
                         <Button
                             onClick={() => handleSubmit()}
                             variant="primary"
+                            disabled={
+                                !!profileDate?.techStacks?.length &&
+                                !!profileDate?.goal?.length
+                            }
                         >
                             저장하기
                         </Button>

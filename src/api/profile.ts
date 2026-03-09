@@ -15,15 +15,27 @@ export const PURPOSE_OPTIONS = [
     "기타(직접 입력)",
 ] as const;
 
+const DEFAULT_PROFILE: requsetProfile = {
+    career: "경력 없음",
+    purpose: "취업 준비",
+    goal: "",
+    techStacks: [],
+    profileImage: "",
+};
+
 export interface responseProfile {
     nickname: string;
-
     career?: (typeof CAREER_OPTIONS)[number];
     purpose?: (typeof PURPOSE_OPTIONS)[number];
     goal?: string;
-    stack?: string[];
+    techStacks?: string[];
     profileImage?: string;
     password?: string;
+}
+export interface responseGetProfile {
+    nickname: string;
+    emain: string;
+    profile: responseProfile;
 }
 export interface requsetProfile {
     career?: (typeof CAREER_OPTIONS)[number];
@@ -37,19 +49,19 @@ export interface requsetImage {
     contentType: string;
 }
 
-export async function postProfile(data: requsetProfile) {
+export async function postProfile() {
     return await request("/api/profile", {
         method: "POST",
-        body: data,
+        body: DEFAULT_PROFILE,
     });
 }
 
-export async function getProfile(): Promise<responseProfile> {
+export async function getProfile(): Promise<responseGetProfile> {
     return await request("/api/profile", {
         method: "GET",
     });
 }
-export async function updateProfile(data: responseProfile): Promise<void> {
+export async function updateProfile(data: requsetProfile): Promise<void> {
     await request("/api/profile", {
         method: "PUT",
         body: data,
