@@ -63,6 +63,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
 
                 const studyLog = (await getTask(timer.studyLogId)).data;
                 setStudyLogId(timer.studyLogId);
+                console.log(timer);
 
                 const totalSplitTimeMs =
                     timer.splitTimes?.reduce(
@@ -88,7 +89,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                     startInterval();
                 }
             } catch (e) {
-                console.error("타이머 복구 실패:", e);
+                console.error(e);
             }
         };
 

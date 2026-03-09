@@ -31,4 +31,5 @@
 html,
 body {
     font-family: var(--font-base);
+    background: linear-gradient(360deg, #f6f7f9, #f6f7f9);
 }

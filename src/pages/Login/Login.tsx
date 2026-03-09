@@ -4,7 +4,7 @@ import Input from "../../components/Input/Input";
 import Logo from "@assets/Logo-1.png";
 import SymbolLogo from "@assets/SymbolLogo.svg";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     isFormField,
     validateEmail,
@@ -16,6 +16,7 @@ import { login } from "@/api/login";
 import { useNavigate } from "react-router-dom";
 import { tokenStorage } from "@/utils/storage";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal";
+import useAuthStore from "@/store/authStore";
 
 function Login() {
     const navigate = useNavigate();
@@ -24,6 +25,13 @@ function Login() {
         password: "",
     });
     const [emailStatus, setEmailStatus] = useState<FieldStatus>("IDLE");
+    const { isLoggedIn } = useAuthStore(state => state);
+
+    useEffect(() => {
+        if (tokenStorage.getAccessToken() || isLoggedIn) {
+            navigate("/");
+        }
+    }, [navigate, isLoggedIn]);
 
     const [touched, setTouched] = useState({
         email: false,
@@ -70,9 +78,16 @@ function Login() {
         try {
             const result = await login(formValue);
             console.log(result);
-            navigate("/");
+            if (result.isFirstLogin) {
+                navigate("/profile");
+            } else {
+                navigate("/");
+            }
+
             tokenStorage.setAccessToken(result.accessToken);
             tokenStorage.setRefreshToken(result.refreshToken);
+            useAuthStore.getState().isLoggedIn = true;
+            useAuthStore.getState().isFirstLogin = result.isFirstLogin;
         } catch (error) {
             if (error instanceof Error) {
                 setShowModal(!isShowModal);

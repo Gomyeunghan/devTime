@@ -10,6 +10,7 @@ function Input({
     onChange,
     type,
     onBlur,
+    value,
 }: {
     name: string;
     placeholder: string;
@@ -19,6 +20,7 @@ function Input({
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type: HTMLInputTypeAttribute;
     onBlur?: () => void;
+    value?: string;
 }) {
     const [touched, setTouched] = useState(false);
 
@@ -43,6 +45,7 @@ function Input({
                     placeholder={placeholder}
                     onChange={onChange}
                     onBlur={handleBlur}
+                    value={value}
                 />
             </div>
 

@@ -111,7 +111,7 @@ function Signup() {
             setNicknameStatus(status);
             setNicknameMessage(result.message);
         } catch (error) {
-            setNicknameStatus("ERROR");
+            setNicknameStatus(error);
         }
     };
     const nicknameFeedbackMessage =
@@ -125,7 +125,6 @@ function Signup() {
         }
         try {
             const result = await signup(formValue);
-
             alert(result.message);
             navigate("/login");
         } catch (error) {
@@ -143,7 +142,7 @@ function Signup() {
                 <span>개발자를 위한 타이머</span>
             </div>
             <div className={S.signupContainer}>
-                <div style={{ minWidth: "420px", padding: "0px 240px" }}>
+                <div style={{ minWidth: "420px", padding: "0px 100px" }}>
                     <h1>회원가입</h1>
                     <div className={S.formWrapper}>
                         <Input
