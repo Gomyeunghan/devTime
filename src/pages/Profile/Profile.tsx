@@ -4,7 +4,6 @@ import Logo from "@assets/Logo_white.png";
 import { useEffect, useRef, useState } from "react";
 import {
     getParsingUrl,
-    getProfile,
     postProfile,
     updateProfile,
     type requsetImage,
