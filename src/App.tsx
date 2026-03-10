@@ -7,7 +7,7 @@ function App() {
         <>
             <TimerProvider>
                 <Header />
-                <main>
+                <main style={{ padding: "40px 360px 48px 360px" }}>
                     <Outlet />
                 </main>
             </TimerProvider>

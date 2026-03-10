@@ -1,0 +1,305 @@
+.pageWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+}
+.myStudyTimeBox {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 240px;
+    background: #000;
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+}
+.textBold {
+    font-weight: 700;
+    font-style: bold;
+    line-height: 46px;
+    font-size: 36px;
+}
+.subText {
+    color: #969da8;
+}
+.mainTextBox {
+    color: #023e99;
+    text-align: end;
+}
+.timBoxContainer {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 가로 2개 */
+    grid-template-rows: repeat(2, 1fr); /* 세로 2줄 */
+    gap: 10px; /* 간격 선택 */
+}
+.studyGraph {
+    flex: 2;
+    background: var(--primary-color);
+    width: 688px;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: white;
+}
+.graphTitle {
+    font-weight: 600;
+    font-size: 16px;
+}
+.graphContent {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    align-items: flex-end;
+    padding-left: 200px;
+}
+.yAxis {
+    display: flex;
+    flex-direction: column;
+    height: 160px;
+    justify-content: space-between;
+    font-size: 12px;
+    opacity: 0.8;
+    padding-bottom: 28px;
+    margin-bottom: 30px;
+    line-height: 25px;
+}
+.yAxis span {
+    border-top: 1px solid white;
+    width: 80px;
+}
+.barsContainer {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex: 1;
+}
+.barWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+.bar {
+    width: 100%;
+    height: 160px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    max-width: 36px;
+}
+.barFill {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 8px;
+    transition: height 0.3s ease;
+}
+.dayLabel {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+.headerContainer {
+    display: flex;
+    gap: 16px;
+}
+
+/* 히트맵 */
+.heatmapContainer {
+    margin-top: 24px;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+}
+.heatmapTitle {
+    font-weight: 600;
+    font-size: 16px;
+}
+.heatmapWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.monthRow {
+    display: flex;
+}
+.dayAxisSpacer {
+    width: 20px;
+    flex-shrink: 0;
+}
+.monthLabels {
+    position: relative;
+    height: 16px;
+    flex: 1;
+}
+.monthLabel {
+    position: absolute;
+    font-size: 11px;
+    color: #666;
+}
+.heatmapBody {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+}
+.dayAxis {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 20px;
+    flex-shrink: 0;
+}
+.dayAxisLabel {
+    font-size: 10px;
+    color: #888;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.grid {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+}
+.weekCol {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+.cell {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+.legend span {
+    font-size: 11px;
+    color: #666;
+}
+.legendCells {
+    display: flex;
+    gap: 2px;
+}
+.tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+    transform: translateX(-50%);
+}
+
+/* 학습 기록 */
+.recordContainer {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.recordTitle {
+    font-weight: 600;
+    font-size: 16px;
+}
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.table thead tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+.table th {
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 500;
+    color: #6b7280;
+    font-size: 13px;
+}
+.table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #111827;
+}
+.table tbody tr:hover {
+    background: #f9fafb;
+}
+.goalCell {
+    color: var(--primary-color) !important;
+    font-weight: 500;
+}
+.deleteBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+.deleteBtn:hover {
+    opacity: 1;
+}
+
+/* 페이지네이션 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+.pageBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+.pageBtn:hover:not(:disabled) {
+    background: #f3f4f6;
+}
+.pageBtn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+.activePage {
+    background: var(--primary-color) !important;
+    color: white !important;
+    font-weight: 600;
+}

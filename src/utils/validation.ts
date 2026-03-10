@@ -10,7 +10,8 @@ export const validateEmail = (email: string): boolean => {
  * 비밀번호 검증 (8자 이상, 영문+숫자 포함)
  */
 export const validatePassword = (password: string): boolean => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex =
+        /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-]{8,}$/;
     return passwordRegex.test(password);
 };
 
