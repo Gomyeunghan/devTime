@@ -1,0 +1,29 @@
+.buttonWrapper {
+    display: inline-block;
+    background-color: white;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    gap: 12px;
+}
+.activeButton {
+    padding: 8px;
+    background: #4c79ff1a;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 22px;
+    color: #023e99;
+}
+.nomalButton {
+    background-color: white;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 22px;
+    color: #023e99;
+}
+.cardWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}

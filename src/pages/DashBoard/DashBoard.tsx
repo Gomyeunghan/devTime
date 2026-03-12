@@ -6,7 +6,9 @@ import {
     getStudyStats,
     type StudyStatsResponse,
     type StudyLog,
+    deleteStudyLog,
 } from "@/api/dashboard";
+import Trash from "@assets/trash.svg";
 
 const BAR_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const WEEK_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -27,7 +29,24 @@ const MONTHS = [
     "12월",
 ];
 
-const CELL_COLORS = ["#eef0f8", "#c5cff0", "#8b9fdf", "#4d6dcb", "#1a3fa8"];
+// 레벨 0 = 공부 없음(투명), 1~5 = 점점 진한 파란색
+const CELL_COLORS = [
+    "transparent",
+    "#dce8ff",
+    "#a8c4f5",
+    "#6699e8",
+    "#3366cc",
+    "#0033aa",
+];
+
+const getColorLevel = (hours: number): number => {
+    if (hours <= 0) return 0;
+    if (hours <= 2) return 1;
+    if (hours <= 4) return 2;
+    if (hours <= 6) return 3;
+    if (hours <= 8) return 4;
+    return 5;
+};
 
 interface HeatmapCell {
     date: Date;
@@ -77,10 +96,12 @@ const getMonthLabels = (weeks: (HeatmapCell | null)[][]) => {
     return labels;
 };
 
-const formatHours = (hours: number) => {
-    const h = Math.floor(hours);
-    const m = Math.floor((hours - h) * 60);
-    return h > 0 ? `${h}시간 ${m}분` : `${m}분`;
+const formatTooltipTime = (hours: number) => {
+    const totalSeconds = Math.round(hours * 3600);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `공부 시간: ${h}시간 ${m}분 ${s}초`;
 };
 
 const formatSeconds = (ms: number) => {
@@ -119,14 +140,19 @@ function DashBoard() {
                     getStudyStats(),
                 ]);
 
-            console.log(heatmapResponse);
-
             setRecords(studyLogResponse.data.studyLogs ?? []);
-            const dataMap = new Map(
-                heatmapResponse.heatmap.map(d => [d.date, d]),
-            );
+
+            const dataMap = new Map<string, { studyTimeHours: number }>();
+            for (const d of heatmapResponse.heatmap) {
+                const existing = dataMap.get(d.date);
+                if (existing) {
+                    existing.studyTimeHours += d.studyTimeHours;
+                } else {
+                    dataMap.set(d.date, { studyTimeHours: d.studyTimeHours });
+                }
+            }
+
             setStudyStats(studyStatsResponse);
-            console.log(studyLogResponse);
 
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -138,10 +164,11 @@ function DashBoard() {
                 const apiDay = dataMap.get(dateStr);
                 allDays.push({
                     date,
-                    colorLevel: apiDay?.colorLevel ?? 0,
+                    colorLevel: apiDay
+                        ? getColorLevel(apiDay.studyTimeHours)
+                        : 0,
                     studyTimeHours: apiDay?.studyTimeHours ?? 0,
                 });
-                console.log(apiDay?.studyTimeHours);
             }
 
             const builtWeeks = buildWeeksFromData(allDays);
@@ -151,8 +178,11 @@ function DashBoard() {
         fetchData();
     }, []);
 
-    const handleDelete = (index: number) => {
+    const handleDelete = async (index: number) => {
         const globalIndex = (page - 1) * PAGE_SIZE + index;
+
+        await deleteStudyLog(records[index].id);
+
         setRecords(prev => prev.filter((_, i) => i !== globalIndex));
     };
 
@@ -165,6 +195,7 @@ function DashBoard() {
             (_, i) => groupStart + i,
         );
     };
+
     const barData = WEEKDAY_ORDER.map(
         day => (studyStats?.weekdayStudyTime?.[day] ?? 0) / 3600000,
     );
@@ -181,7 +212,9 @@ function DashBoard() {
                                 {studyStats?.totalStudyTime
                                     ? Math.floor(
                                           studyStats?.totalStudyTime /
-                                              (100 * 60 * 60),
+                                              1000 /
+                                              60 /
+                                              60,
                                       )
                                     : 0}
                             </span>
@@ -215,7 +248,9 @@ function DashBoard() {
                                 {studyStats?.averageDailyStudyTime
                                     ? Math.floor(
                                           studyStats?.averageDailyStudyTime /
-                                              (100 * 60 * 60),
+                                              1000 /
+                                              60 /
+                                              60,
                                       )
                                     : 0}
                             </span>
@@ -317,7 +352,11 @@ function DashBoard() {
                                                     : "transparent",
                                             }}
                                             onMouseEnter={e => {
-                                                if (!day) return;
+                                                if (
+                                                    !day ||
+                                                    day.colorLevel === 0
+                                                )
+                                                    return;
                                                 const rect = (
                                                     e.target as HTMLElement
                                                 ).getBoundingClientRect();
@@ -326,7 +365,9 @@ function DashBoard() {
                                                         rect.left +
                                                         rect.width / 2,
                                                     y: rect.top,
-                                                    text: `${day.date.toLocaleDateString("ko-KR")} · ${formatHours(day.studyTimeHours)}`,
+                                                    text: formatTooltipTime(
+                                                        day.studyTimeHours,
+                                                    ),
                                                 });
                                             }}
                                             onMouseLeave={() =>
@@ -341,7 +382,7 @@ function DashBoard() {
                     <div className={S.legend}>
                         <span>Shallow</span>
                         <div className={S.legendCells}>
-                            {CELL_COLORS.map((color, i) => (
+                            {CELL_COLORS.slice(1).map((color, i) => (
                                 <div
                                     key={i}
                                     className={S.cell}
@@ -393,7 +434,7 @@ function DashBoard() {
                                         className={S.deleteBtn}
                                         onClick={() => handleDelete(i)}
                                     >
-                                        🗑
+                                        <img src={Trash} />
                                     </button>
                                 </td>
                             </tr>

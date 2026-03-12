@@ -65,3 +65,8 @@ export async function getStudyStats(): Promise<StudyStatsResponse> {
         method: "GET",
     });
 }
+export async function deleteStudyLog(studyLogId: string) {
+    return request(`/api/study-logs/${studyLogId}`, {
+        method: "DELETE",
+    });
+}

@@ -83,7 +83,7 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
                 setTodayGoal(studyLog.todayGoal);
                 setExistingSplitTimes(timer.splitTimes || []);
                 setAccumulatedSeconds(totalSeconds);
-                setTotalSeconds(totalSeconds);
+                setTotalSeconds(totalSeconds * 1000);
 
                 if (!isPaused) {
                     startInterval();

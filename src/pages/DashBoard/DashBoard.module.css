@@ -189,6 +189,7 @@
     aspect-ratio: 1;
     border-radius: 3px;
     cursor: pointer;
+    border: 1px solid #ccd0d6;
 }
 .legend {
     display: flex;
