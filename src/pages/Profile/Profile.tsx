@@ -24,9 +24,9 @@ function Profile() {
     const [profileDate, setProfileDate] = useState<requsetProfile | null>(null);
     const [stackOptions, setStackOptions] = useState<StackItem[]>([]);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
-    const [selectImage, setSelectImage] = useState<requsetImage | null>(null);
     const [value, setValue] = useState<string>("");
     const { isLoggedIn, isFirstLogin } = useAuthStore();
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     const navigate = useNavigate();
     const debouncedSearch = useRef(
@@ -90,13 +90,12 @@ function Profile() {
         console.log(file);
         if (!file) return;
         setPreviewImage(URL.createObjectURL(file));
-        setSelectImage({
+        const imageInfo: requsetImage = {
             fileName: file.name,
             contentType: file.type,
-        });
-        if (!selectImage) return;
-        console.log("gogo");
-        await handleSaveProfileImage(selectImage);
+        };
+
+        await handleSaveProfileImage(imageInfo, file);
     };
     const addStack = (stackIndex: number) => {
         console.log(profileDate);
@@ -118,18 +117,27 @@ function Profile() {
         setValue("");
         setStackOptions([]);
     };
-    const handleSaveProfileImage = async (updateImageFile: requsetImage) => {
-        if (!updateImageFile) return;
-        const parsingUrl = await getParsingUrl(updateImageFile);
-        setProfileDate(prev =>
-            prev
-                ? {
-                      ...prev,
-                      profileImage: parsingUrl.key,
-                  }
-                : prev,
-        );
-        console.log(parsingUrl);
+    const handleSaveProfileImage = async (
+        updateImageFile: requsetImage,
+        file: File,
+    ) => {
+        setIsUploadingImage(true);
+        try {
+            const { presignedUrl, key } = await getParsingUrl(updateImageFile);
+            const response = await fetch(presignedUrl, {
+                method: "PUT",
+                headers: { "Content-Type": updateImageFile.contentType },
+                body: file,
+            });
+            if (!response.ok) {
+                throw new Error("프로필 이미지 업로드에 실패했습니다.");
+            }
+            setProfileDate(prev =>
+                prev ? { ...prev, profileImage: key } : prev,
+            );
+        } finally {
+            setIsUploadingImage(false);
+        }
     };
     const handleSkip = async () => {
         await postProfile();
@@ -232,8 +240,9 @@ function Profile() {
                             onClick={() => handleSubmit()}
                             variant="primary"
                             disabled={
-                                !!!profileDate?.techStacks?.length &&
-                                !!!profileDate?.goal?.length
+                                isUploadingImage ||
+                                (!!!profileDate?.techStacks?.length &&
+                                    !!!profileDate?.goal?.length)
                             }
                         >
                             저장하기

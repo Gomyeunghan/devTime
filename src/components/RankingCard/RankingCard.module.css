@@ -1,0 +1,87 @@
+.container {
+    display: flex;
+    padding: 12px 24px;
+    background: white;
+    border-radius: 16px;
+    gap: 36px;
+}
+.imageContainer {
+    flex-direction: column;
+    display: flex;
+    gap: 16px;
+}
+.subTextContainer {
+    display: flex;
+    gap: 16px;
+    white-space: nowrap;
+}
+.infoConatiner {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: center;
+}
+.rankBadge {
+    height: 30px;
+    padding: 3px 8px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    align-self: flex-start;
+    font-weight: bold;
+}
+.secondary {
+    background-color: #4c79ff1a;
+    color: var(--primary-color);
+}
+
+.third {
+    background-color: #f0f2f5;
+    color: #717887;
+}
+.stack {
+    padding: 4px 8px;
+    background: #f0f2f5;
+    color: var(--gray-500);
+    border-radius: 4px;
+}
+.textBold {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
+    color: #394252;
+}
+.textNomal {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    color: #717887;
+}
+.nickname {
+    display: block;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    color: var(--primary-color);
+}
+.goal {
+    display: block;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+    color: var(--primary-color);
+}
+
+.subtextWraper {
+    display: flex;
+    gap: 8px;
+}
+.image {
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+}
+.stacksWrapper {
+    display: flex;
+    gap: 8px;
+}

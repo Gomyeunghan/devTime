@@ -7,7 +7,15 @@ function App() {
         <>
             <TimerProvider>
                 <Header />
-                <main>
+                <main
+                    style={{
+                        maxWidth: "1200px",
+                        margin: "0 auto",
+                        padding: "40px 24px 48px",
+                        width: "100%",
+                    }}
+                >
+                    {" "}
                     <Outlet />
                 </main>
             </TimerProvider>

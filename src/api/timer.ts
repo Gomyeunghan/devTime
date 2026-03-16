@@ -53,7 +53,7 @@ export async function deleteTimer(timerId: string) {
 }
 export async function updateTimer(
     timerId: string,
-    data: Partial<requestPutTimer>, // any 대신 명확한 타입
+    data: Partial<requestPutTimer>,
 ): Promise<responseTimer> {
     return await request(`/api/timers/${timerId}`, {
         method: "PUT",
