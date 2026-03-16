@@ -18,10 +18,6 @@ export class ApiError extends Error {
 
 async function parseError(response: Response): Promise<ApiError> {
     let message = "처리중 에러발생";
-    if (response.status === 401) {
-        useAuthStore.getState().logout();
-        console.log("logout");
-    }
     try {
         const data = await response.json();
         message = data?.error?.message || message;
@@ -37,10 +33,34 @@ export async function request<T>(
         method: options.method,
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: options.body ? JSON.stringify(options.body) : undefined,
     });
+    if (response.status === 401) {
+        const refreshToken = tokenStorage.getRefreshToken();
+        if (!refreshToken) {
+            useAuthStore.getState().logout();
+            throw new ApiError("인증만료", 401);
+        }
+
+        const refreshRes = await fetch(`${BASE_URL}/api/auth/refresh`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token && { Authorization: `Bearer ${token}` }),
+            },
+            body: JSON.stringify({ refreshToken }),
+        });
+        if (!refreshRes.ok) {
+            useAuthStore.getState().logout();
+            throw new ApiError("인증만료", 401);
+        }
+        const { accessToken } = await refreshRes.json();
+        tokenStorage.setAccessToken(accessToken);
+
+        return request(url, options);
+    }
 
     if (!response.ok) {
         throw await parseError(response);
