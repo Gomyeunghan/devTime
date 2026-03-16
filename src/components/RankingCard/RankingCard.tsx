@@ -53,7 +53,7 @@ function RankingCard({ user }: { user: Ranking }) {
                         .slice(0, 5)
                         ?.map((stack: TechStack, index) => {
                             return (
-                                <span className={S.stack} key={index}>
+                                <span className={S.stack} key={stack.id}>
                                     {stack.name}
                                 </span>
                             );
