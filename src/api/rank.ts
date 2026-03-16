@@ -6,11 +6,11 @@ export interface Root {
 }
 
 export interface Data {
-    rankings: Ranking[];
+    rankings: RankingData[];
     pagination: Pagination;
 }
 
-export interface Ranking {
+export interface RankingData {
     rank: number;
     userId: string;
     nickname: string;
