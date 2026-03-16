@@ -26,6 +26,7 @@ function Profile() {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [value, setValue] = useState<string>("");
     const { isLoggedIn, isFirstLogin } = useAuthStore();
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     const navigate = useNavigate();
     const debouncedSearch = useRef(
@@ -120,13 +121,23 @@ function Profile() {
         updateImageFile: requsetImage,
         file: File,
     ) => {
-        const { presignedUrl, key } = await getParsingUrl(updateImageFile);
-        await fetch(presignedUrl, {
-            method: "PUT",
-            headers: { "Content-Type": updateImageFile.contentType },
-            body: file,
-        });
-        setProfileDate(prev => (prev ? { ...prev, profileImage: key } : prev));
+        setIsUploadingImage(true);
+        try {
+            const { presignedUrl, key } = await getParsingUrl(updateImageFile);
+            const response = await fetch(presignedUrl, {
+                method: "PUT",
+                headers: { "Content-Type": updateImageFile.contentType },
+                body: file,
+            });
+            if (!response.ok) {
+                throw new Error("프로필 이미지 업로드에 실패했습니다.");
+            }
+            setProfileDate(prev =>
+                prev ? { ...prev, profileImage: key } : prev,
+            );
+        } finally {
+            setIsUploadingImage(false);
+        }
     };
     const handleSkip = async () => {
         await postProfile();
@@ -229,8 +240,9 @@ function Profile() {
                             onClick={() => handleSubmit()}
                             variant="primary"
                             disabled={
-                                !!!profileDate?.techStacks?.length &&
-                                !!!profileDate?.goal?.length
+                                isUploadingImage ||
+                                (!!!profileDate?.techStacks?.length &&
+                                    !!!profileDate?.goal?.length)
                             }
                         >
                             저장하기

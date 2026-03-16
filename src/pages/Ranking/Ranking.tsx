@@ -1,29 +1,24 @@
 import RankingCard from "@/components/RankingCard/RankingCard";
 import S from "./Ranking.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getRankings, type Ranking } from "@/api/rank";
 
 function Ranking() {
-    const [users, setUsers] = useState<Ranking[]>();
-    const [active, setActive] = useState<string>("left");
+    const [users, setUsers] = useState<Ranking[]>([]);
+    const [active, setActive] = useState<"total" | "avg">("total");
+    const requestSeq = useRef(0);
+
+    const loadRankings = async (type: "total" | "avg") => {
+        const seq = ++requestSeq.current;
+        const response = await getRankings(type);
+        if (!response.success || seq !== requestSeq.current) return;
+        setUsers(response.data.rankings);
+        setActive(type);
+    };
 
     useEffect(() => {
-        const rankings = async () => {
-            const response = await getRankings("total");
-            if (!response.success) return;
-            setUsers(response.data.rankings);
-        };
-        rankings();
+        void loadRankings("total");
     }, []);
-
-    const clickFetchTotal = async () => {
-        const response = await getRankings("total");
-        setUsers(response.data.rankings);
-    };
-    const clickFetchAvg = async () => {
-        const response = await getRankings("avg");
-        setUsers(response.data.rankings);
-    };
 
     console.log(users);
 
@@ -32,26 +27,20 @@ function Ranking() {
             <div>
                 <div className={S.buttonWrapper}>
                     <button
-                        onClick={() => {
-                            clickFetchTotal();
-                            setActive("left");
-                        }}
+                        onClick={() => void loadRankings("total")}
                         className={
-                            active === "left" ? S.activeButton : S.nomalButton
+                            active === "total" ? S.activeButton : S.nomalButton
                         }
-                        disabled={active === "left"}
+                        disabled={active === "total"}
                     >
                         총 학습 시간
                     </button>
                     <button
-                        onClick={() => {
-                            clickFetchAvg();
-                            setActive("right");
-                        }}
+                        onClick={() => void loadRankings("avg")}
                         className={
-                            active === "right" ? S.activeButton : S.nomalButton
+                            active === "avg" ? S.activeButton : S.nomalButton
                         }
-                        disabled={active === "right"}
+                        disabled={active === "avg"}
                     >
                         일 평균 학습 시간
                     </button>

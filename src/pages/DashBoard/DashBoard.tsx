@@ -180,9 +180,9 @@ function DashBoard() {
 
     const handleDelete = async (index: number) => {
         const globalIndex = (page - 1) * PAGE_SIZE + index;
-
-        await deleteStudyLog(records[index].id);
-
+        const record = records[globalIndex];
+        if (!record) return;
+        await deleteStudyLog(record.id);
         setRecords(prev => prev.filter((_, i) => i !== globalIndex));
     };
 
@@ -431,10 +431,16 @@ function DashBoard() {
                                 <td>{record.completionRate}%</td>
                                 <td>
                                     <button
+                                        type="button"
                                         className={S.deleteBtn}
+                                        aria-label={`${record.date} 학습 기록 삭제`}
                                         onClick={() => handleDelete(i)}
                                     >
-                                        <img src={Trash} />
+                                        <img
+                                            src={Trash}
+                                            alt=""
+                                            aria-hidden="true"
+                                        />
                                     </button>
                                 </td>
                             </tr>
