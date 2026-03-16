@@ -132,48 +132,58 @@ function DashBoard() {
     const pageRecords = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     useEffect(() => {
+        setPage(prev => Math.min(prev, totalPages));
+    }, [totalPages]);
+
+    useEffect(() => {
         const fetchData = async () => {
-            const [studyLogResponse, heatmapResponse, studyStatsResponse] =
-                await Promise.all([
-                    getStudyLog(),
-                    getHeatmap(),
-                    getStudyStats(),
-                ]);
+            try {
+                const [studyLogResponse, heatmapResponse, studyStatsResponse] =
+                    await Promise.all([
+                        getStudyLog(),
+                        getHeatmap(),
+                        getStudyStats(),
+                    ]);
 
-            setRecords(studyLogResponse.data.studyLogs ?? []);
+                setRecords(studyLogResponse.data.studyLogs ?? []);
+                setStudyStats(studyStatsResponse);
 
-            const dataMap = new Map<string, { studyTimeHours: number }>();
-            for (const d of heatmapResponse.heatmap) {
-                const existing = dataMap.get(d.date);
-                if (existing) {
-                    existing.studyTimeHours += d.studyTimeHours;
-                } else {
-                    dataMap.set(d.date, { studyTimeHours: d.studyTimeHours });
+                const dataMap = new Map<string, { studyTimeHours: number }>();
+                for (const d of heatmapResponse.heatmap) {
+                    const existing = dataMap.get(d.date);
+                    if (existing) {
+                        existing.studyTimeHours += d.studyTimeHours;
+                    } else {
+                        dataMap.set(d.date, {
+                            studyTimeHours: d.studyTimeHours,
+                        });
+                    }
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const allDays: HeatmapCell[] = [];
+                    for (let i = 364; i >= 0; i--) {
+                        const date = new Date(today);
+                        date.setDate(today.getDate() - i);
+                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                        const apiDay = dataMap.get(dateStr);
+                        allDays.push({
+                            date,
+                            colorLevel: apiDay
+                                ? getColorLevel(apiDay.studyTimeHours)
+                                : 0,
+                            studyTimeHours: apiDay?.studyTimeHours ?? 0,
+                        });
+                    }
+                    const builtWeeks = buildWeeksFromData(allDays);
+                    setWeeks(builtWeeks);
+                    setMonthLabels(getMonthLabels(builtWeeks));
                 }
+            } catch {
+                setRecords([]);
+                setWeeks([]);
+                setMonthLabels([]);
+                setStudyStats(null);
             }
-
-            setStudyStats(studyStatsResponse);
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const allDays: HeatmapCell[] = [];
-            for (let i = 364; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(today.getDate() - i);
-                const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-                const apiDay = dataMap.get(dateStr);
-                allDays.push({
-                    date,
-                    colorLevel: apiDay
-                        ? getColorLevel(apiDay.studyTimeHours)
-                        : 0,
-                    studyTimeHours: apiDay?.studyTimeHours ?? 0,
-                });
-            }
-
-            const builtWeeks = buildWeeksFromData(allDays);
-            setWeeks(builtWeeks);
-            setMonthLabels(getMonthLabels(builtWeeks));
         };
         fetchData();
     }, []);

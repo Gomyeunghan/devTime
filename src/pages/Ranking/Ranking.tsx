@@ -1,10 +1,10 @@
 import RankingCard from "@/components/RankingCard/RankingCard";
 import S from "./Ranking.module.css";
 import { useEffect, useRef, useState } from "react";
-import { getRankings, type Ranking } from "@/api/rank";
+import { getRankings, type RankingData } from "@/api/rank";
 
 function Ranking() {
-    const [users, setUsers] = useState<Ranking[]>([]);
+    const [users, setUsers] = useState<RankingData[]>([]);
     const [active, setActive] = useState<"total" | "avg">("total");
     const requestSeq = useRef(0);
 
@@ -38,7 +38,7 @@ function Ranking() {
                     <button
                         onClick={() => void loadRankings("avg")}
                         className={
-                            active === "avg" ? S.activeButton : S.nomalButton
+                            active === "avg" ? S.activeButton : S.normalButton
                         }
                         disabled={active === "avg"}
                     >
