@@ -4,6 +4,9 @@ import S from "./RankingCard.module.css";
 import profile from "@assets/Profile.jpg";
 
 function RankingCard({ user }: { user: Ranking }) {
+    const averageMinutes = Math.round(user.averageStudyTime / 1000 / 60);
+    const averageHours = Math.floor(averageMinutes / 60);
+    const remainingMinutes = averageMinutes % 60;
     return (
         <div className={S.container}>
             <div className={S.imageContainer}>
@@ -34,9 +37,8 @@ function RankingCard({ user }: { user: Ranking }) {
                     <div className={S.subtextWraper}>
                         <span className={S.textNomal}>일 평균</span>
                         <span className={S.textBold}>
-                            {Math.round(user.averageStudyTime / 1000 / 60 / 60)}
-                            시간{Math.round(user.averageStudyTime / 1000 / 60)}
-                            분
+                            {averageHours}
+                            시간{remainingMinutes}분
                         </span>
                     </div>
                     <div className={S.subtextWraper}>
