@@ -18,3 +18,43 @@
     align-items: center;
     gap: 36px;
 }
+.modalWrapper {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 12px 16px;
+    gap: 16px;
+    border: 1px solid #ccd0d6;
+    color: #4b5563;
+    justify-content: center;
+    position: absolute;
+    top: 64px;
+    left: 1430px;
+    border-radius: 5px;
+}
+.modalWrapper > * {
+    display: flex;
+    gap: 16px;
+    font-size: 16px;
+    white-space: nowrap;
+    z-index: 11;
+}
+.solid {
+    border: 1px solid #ccd0d6;
+    width: 106px;
+    height: 1px;
+    margin: auto;
+}
+.profileBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700px;
+    line-height: 20px;
+}
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+}
