@@ -15,7 +15,6 @@ function App() {
                         width: "100%",
                     }}
                 >
-                    {" "}
                     <Outlet />
                 </main>
             </TimerProvider>
