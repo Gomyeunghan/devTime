@@ -7,8 +7,11 @@ import {
     type StudyStatsResponse,
     type StudyLog,
     deleteStudyLog,
+    getStudyLogDetail,
+    type detailStudyLog,
 } from "@/api/dashboard";
 import Trash from "@assets/trash.svg";
+import DoneTodoModal from "@/components/DoneTodoModal/DonTodoModal";
 
 const BAR_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const WEEK_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -127,6 +130,19 @@ function DashBoard() {
     const [studyStats, setStudyStats] = useState<StudyStatsResponse | null>(
         null,
     );
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [todoItem, setTodoItem] = useState<detailStudyLog | null>(null);
+
+    const handleModal = async (id: string) => {
+        setIsOpen(!isOpen);
+    };
+    const fetchStudyDetail = async (id: string) => {
+        try {
+            const response: detailStudyLog = await getStudyLogDetail(id);
+            if (!response) return;
+            setTodoItem(response);
+        } catch {}
+    };
 
     const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
     const pageRecords = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -430,7 +446,13 @@ function DashBoard() {
                     </thead>
                     <tbody>
                         {pageRecords.map((record, i) => (
-                            <tr key={record.id}>
+                            <tr
+                                key={record.id}
+                                onClick={() => {
+                                    handleModal(record.id);
+                                    fetchStudyDetail(record.id);
+                                }}
+                            >
                                 <td>{record.date}</td>
                                 <td className={S.goalCell}>
                                     {record.todayGoal}
@@ -501,6 +523,13 @@ function DashBoard() {
                     </button>
                 </div>
             </div>
+            {isOpen && todoItem && (
+                <DoneTodoModal
+                    data={todoItem.data}
+                    isOpen={isOpen}
+                    handleModal={() => setIsOpen(!isOpen)}
+                />
+            )}
         </div>
     );
 }

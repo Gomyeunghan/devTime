@@ -48,6 +48,19 @@ export interface weekdayStudyTime {
     Saturday: number;
     Sunday: number;
 }
+export interface detailStudyLogData {
+    id: string;
+    date: string;
+    todayGoal: string;
+    studyTime: number;
+    tasks: [{ id: string; content: string; isCompleted: boolean }];
+    review: string;
+    completionRate: number;
+}
+export interface detailStudyLog {
+    success: boolean;
+    data: detailStudyLogData;
+}
 
 export async function getStudyLog(): Promise<StudyLogResponse> {
     return request("/api/study-logs", {
@@ -68,5 +81,12 @@ export async function getStudyStats(): Promise<StudyStatsResponse> {
 export async function deleteStudyLog(studyLogId: string) {
     return request(`/api/study-logs/${studyLogId}`, {
         method: "DELETE",
+    });
+}
+export async function getStudyLogDetail(
+    studyLogId: string,
+): Promise<detailStudyLog> {
+    return request(`/api/study-logs/${studyLogId}`, {
+        method: "GET",
     });
 }
