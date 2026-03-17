@@ -31,7 +31,9 @@ export interface StackResult {
 }
 
 function MyPage() {
-    const [profileDate, setProfileDate] = useState<responseProfile>();
+    const [profileDate, setProfileDate] = useState<responseProfile | null>(
+        null,
+    );
     const [originalProfile, setOriginalProfile] = useState<responseProfile>();
     const [passwordConfirm, setPasswordConfirm] = useState<string>("");
     const [stackOptions, setStackOptions] = useState<StackItem[]>([]);
@@ -76,7 +78,9 @@ function MyPage() {
                 setProfileDate(fetched);
                 setOriginalProfile(fetched);
                 if (fetched.profileImage) {
-                    setPreviewImage(`https://dev-time-bucket.s3.ap-northeast-2.amazonaws.com/${fetched.profileImage}`);
+                    setPreviewImage(
+                        `https://dev-time-bucket.s3.ap-northeast-2.amazonaws.com/${fetched.profileImage}`,
+                    );
                 }
             } catch (error) {
                 console.error(error);
@@ -136,6 +140,7 @@ function MyPage() {
 
     const clickNickNameDuplicate = async () => {
         try {
+            if (!profileDate?.nickname) return;
             const result = await checkNicknameDuplicate(profileDate?.nickname);
             console.log(result);
             setNickNameFeedbackText(result.message);
@@ -201,9 +206,7 @@ function MyPage() {
             headers: { "Content-Type": updateImageFile.contentType },
             body: file,
         });
-        setProfileDate(prev =>
-            prev ? { ...prev, profileImage: key } : prev,
-        );
+        setProfileDate(prev => (prev ? { ...prev, profileImage: key } : prev));
     };
 
     return (
