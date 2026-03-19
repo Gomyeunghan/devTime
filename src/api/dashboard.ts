@@ -53,7 +53,7 @@ export interface detailStudyLogData {
     date: string;
     todayGoal: string;
     studyTime: number;
-    tasks: [{ id: string; content: string; isCompleted: boolean }];
+    tasks: { id: string; content: string; isCompleted: boolean }[];
     review: string;
     completionRate: number;
 }

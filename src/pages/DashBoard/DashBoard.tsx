@@ -141,7 +141,9 @@ function DashBoard() {
             const response: detailStudyLog = await getStudyLogDetail(id);
             if (!response) return;
             setTodoItem(response);
-        } catch {}
+        } catch (error) {
+            console.error("Failed to fetch study detail:", error);
+        }
     };
 
     const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));

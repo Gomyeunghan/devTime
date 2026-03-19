@@ -18,6 +18,9 @@
     align-items: center;
     gap: 36px;
 }
+.profileWrapper {
+    position: relative;
+}
 .modalWrapper {
     display: flex;
     flex-direction: column;
@@ -28,9 +31,10 @@
     color: #4b5563;
     justify-content: center;
     position: absolute;
-    top: 64px;
-    left: 1430px;
+    top: calc(100% + 8px);
+    right: -20px;
     border-radius: 5px;
+    z-index: 11;
 }
 .modalWrapper > * {
     display: flex;
@@ -50,7 +54,7 @@
     justify-content: center;
     align-items: center;
     gap: 12px;
-    font-weight: 700px;
+    font-weight: 700;
     line-height: 20px;
 }
 .overlay {

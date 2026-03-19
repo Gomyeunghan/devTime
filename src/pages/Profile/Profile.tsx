@@ -262,7 +262,7 @@ function Profile() {
             <BaseModal
                 isOpen={isModalOpen}
                 onClose={() => {
-                    !setIsModalOpen;
+                    setIsModalOpen(false);
                 }}
             >
                 <BaseModal.Header>프로필 설정을 건너뛸까요?</BaseModal.Header>
@@ -271,7 +271,7 @@ function Profile() {
                     있습니다. 그래도 프로필 설정을 건너뛰시겠습니까?
                 </BaseModal.Body>
                 <BaseModal.Footer>
-                    <Button onClick={() => handleSkip} variant="secondary">
+                    <Button onClick={handleSkip} variant="secondary">
                         건너뛰기
                     </Button>
                     <Button
