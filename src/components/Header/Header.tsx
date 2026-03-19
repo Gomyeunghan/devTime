@@ -28,10 +28,14 @@ function Header() {
                         <img src={Union} alt="Logo" />
                     </Link>
                 </h1>
-                <nav className={S.navWrapper}>
-                    <Link to="dashboard">대시보드</Link>
-                    <Link to="ranking">랭킹</Link>
-                </nav>
+                {isLoggedIn ? (
+                    <nav className={S.navWrapper}>
+                        <Link to="dashboard">대시보드</Link>
+                        <Link to="ranking">랭킹</Link>
+                    </nav>
+                ) : (
+                    ""
+                )}
             </div>
             {tokenStorage.getAccessToken() && isLoggedIn ? (
                 <div className={S.profileWrapper}>

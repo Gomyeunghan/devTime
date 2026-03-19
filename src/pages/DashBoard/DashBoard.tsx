@@ -12,6 +12,8 @@ import {
 } from "@/api/dashboard";
 import Trash from "@assets/trash.svg";
 import DoneTodoModal from "@/components/DoneTodoModal/DonTodoModal";
+import useAuthStore from "@/store/authStore";
+import { useNavigate } from "react-router-dom";
 
 const BAR_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const WEEK_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -145,9 +147,15 @@ function DashBoard() {
             console.error("Failed to fetch study detail:", error);
         }
     };
+    const { isLoggedIn } = useAuthStore();
+    const navigator = useNavigate();
 
     const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
     const pageRecords = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    useEffect(() => {
+        if (!isLoggedIn) navigator("/");
+    }, [isLoggedIn]);
 
     useEffect(() => {
         setPage(prev => Math.min(prev, totalPages));

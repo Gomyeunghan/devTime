@@ -2,11 +2,15 @@ import RankingCard from "@/components/RankingCard/RankingCard";
 import S from "./Ranking.module.css";
 import { useEffect, useRef, useState } from "react";
 import { getRankings, type RankingData } from "@/api/rank";
+import useAuthStore from "@/store/authStore";
+import { useNavigate } from "react-router-dom";
 
 function Ranking() {
     const [users, setUsers] = useState<RankingData[]>([]);
     const [active, setActive] = useState<"total" | "avg">("total");
     const requestSeq = useRef(0);
+    const { isLoggedIn } = useAuthStore();
+    const navigator = useNavigate();
 
     const loadRankings = async (type: "total" | "avg") => {
         const seq = ++requestSeq.current;
@@ -19,6 +23,9 @@ function Ranking() {
     useEffect(() => {
         void loadRankings("total");
     }, []);
+    useEffect(() => {
+        if (!isLoggedIn) navigator("/");
+    }, [isLoggedIn]);
 
     console.log(users);
 

@@ -19,6 +19,7 @@ import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
 import { checkNicknameDuplicate } from "@/api/signup";
 import { useNavigate } from "react-router-dom";
 import ProfileImage from "@/components/ProfileImage/ProfileImage";
+import useAuthStore from "@/store/authStore";
 export interface StackItem {
     id: number;
     name: string;
@@ -45,6 +46,7 @@ function MyPage() {
         useState<boolean>(false);
     const [value, setValue] = useState<string>("");
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const { isLoggedIn } = useAuthStore();
 
     const navigator = useNavigate();
 
@@ -60,6 +62,10 @@ function MyPage() {
             console.log(keyword, "keyword");
         }, 500),
     ).current;
+
+    useEffect(() => {
+        if (!isLoggedIn) navigator("/");
+    }, [isLoggedIn]);
 
     useEffect(() => {
         const responesProfile = async () => {
