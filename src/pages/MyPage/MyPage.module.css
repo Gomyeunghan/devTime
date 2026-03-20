@@ -1,4 +1,6 @@
 .container {
+    display: flex;
+    gap: 56px;
     background-color: white;
     margin: auto;
     width: 1200px;
@@ -8,70 +10,27 @@
     color: #4b5563;
     position: relative;
 }
-.inputWrapper {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-.inputWrapper :nth-child(2) {
-    flex: 1;
-}
-.inputContainer {
-    display: flex;
-    padding: 16px;
-    gap: 32px;
-}
-.inputBoxLeft {
-    width: 50%;
-}
-.inputBoxLeft > :nth-child(1) {
-    margin-bottom: 20px;
-}
-.inputBoxRight {
-    width: 50%;
-}
-.bedge {
-    display: inline-block;
-    height: 44px;
-    background-color: #4c79ff1a;
-    padding: 12px;
-    border: 1px solid var(--primary-color);
-    font-size: 14px;
-    border-radius: 8px;
-    color: var(--primary-color);
-    text-align: center;
-    line-height: 18px;
-}
-.bedgeWapper {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-.buttonWrapper {
-    gap: 16px;
-    position: absolute;
-    right: 50px;
-    display: flex;
-}
-.imgBox {
-    padding: 16px;
-}
 
-.stackWrapper {
-    margin-top: -16px;
+.spanWrapper {
     display: flex;
-    position: absolute;
-    background: #fff;
-    max-width: 528px;
-    z-index: 10;
-    width: 800px;
     flex-direction: column;
-    gap: 8px;
-    border: 1px solid #e5e7eb;
-    padding: 16px 12px;
-    border-radius: 8px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
 }
-button {
-    text-align: start;
+.userTitle {
+}
+.userDataHeader {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 48px;
+}
+.nickname {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 22px;
+    color: #023e99;
+}
+.purpose {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 30px;
+    color: #023e99;
 }

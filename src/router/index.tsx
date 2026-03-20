@@ -3,10 +3,11 @@ import App from "../App";
 import Home from "../pages/Home/Home";
 import DashBoard from "../pages/DashBoard/DashBoard";
 import Login from "../pages/Login/Login";
-import MyPage from "../pages/MyPage/MyPage";
+import MyPageEdit from "../pages/MyPageEdit/MyPageEdit";
 import Ranking from "../pages/Ranking/Ranking";
 import Signup from "@/pages/Signup/Signup";
 import Profile from "@/pages/Profile/Profile";
+import MyPage from "@/pages/MyPage/MyPage";
 
 const router = createBrowserRouter([
     {
@@ -16,7 +17,11 @@ const router = createBrowserRouter([
             // 기존 routes가 children으로
             { index: true, element: <Home /> },
             { path: "DashBoard", element: <DashBoard /> },
-            { path: "MyPage", element: <MyPage /> },
+            {
+                path: "MyPage",
+                element: <MyPage />,
+                children: [{ path: "MyPageEdit", element: <MyPageEdit /> }],
+            },
             { path: "Ranking", element: <Ranking /> },
         ],
     },

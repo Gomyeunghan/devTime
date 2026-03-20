@@ -12,7 +12,7 @@ import {
 } from "@/api/profile";
 import Input from "@/components/Input/Input";
 import { debounce } from "@/utils/debounce";
-import type { StackItem, StackResult } from "../MyPage/MyPage";
+import type { StackItem, StackResult } from "../MyPageEdit/MyPageEdit";
 import { getStack } from "@/api/stack";
 import Button from "@/components/Button/Button";
 import { useNavigate } from "react-router-dom";

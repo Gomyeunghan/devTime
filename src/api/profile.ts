@@ -31,10 +31,11 @@ export interface responseProfile {
     techStacks?: string[];
     profileImage?: string;
     password?: string;
+    email?: string;
 }
 export interface responseGetProfile {
     nickname: string;
-    emain: string;
+    email: string;
     profile: responseProfile;
 }
 export interface requsetProfile {

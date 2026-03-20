@@ -1,5 +1,5 @@
 import Input from "@/components/Input/Input";
-import S from "./MyPage.module.css";
+import S from "./MyPageEdit.module.css";
 import DefultProfile from "@assets/Profile.jpg";
 import Button from "@/components/Button/Button";
 import { useEffect, useRef, useState } from "react";
@@ -31,7 +31,7 @@ export interface StackResult {
     results: StackItem[];
 }
 
-function MyPage() {
+function MyPageEdit() {
     const [profileDate, setProfileDate] = useState<responseProfile | null>(
         null,
     );
@@ -80,7 +80,6 @@ function MyPage() {
                     goal: fetchProifle.profile.goal,
                     techStacks: fetchProifle.profile.techStacks,
                     profileImage: fetchProifle.profile.profileImage,
-                    email: fetchProifle.email,
                 };
                 setProfileDate(fetched);
                 setOriginalProfile(fetched);
@@ -216,45 +215,132 @@ function MyPage() {
         setProfileDate(prev => (prev ? { ...prev, profileImage: key } : prev));
     };
 
-    console.log(profileDate?.email);
-
     return (
         <>
             <div className={S.container}>
                 <div className={S.imgBox}>
-                    <img
-                        src={`https://dev-time-bucket.s3.ap-northeast-2.amazonaws.com/${profileDate?.profileImage}`}
-                        alt="프로필이미지"
-                        style={{
-                            width: "160px",
-                            height: "160px",
-                            borderRadius: "12px",
+                    <span>프로필 이미지</span>
+                    <button
+                        onClick={() => {
+                            console.log(profileDate);
                         }}
+                    >
+                        ddd
+                    </button>
+                    {}
+                    <ProfileImage
+                        previewImage={previewImage}
+                        handleImageChange={handleImageChange}
                     />
                 </div>
-                <div className={S.userDat}>
-                    <div className={S.userDataHeader}>
-                        <span className={S.nickname}>
-                            {profileDate?.nickname}
-                        </span>
-                        <span className={S.purpose}>
-                            {profileDate?.purpose}
-                        </span>
-                    </div>
-                    <div className={S.spanWrapper}>
-                        <span>이메일 주소</span>
-                        <span>{profileDate?.email}</span>
+                <div className={S.inputContainer}>
+                    <div className={S.inputBoxRight}>
+                        <div className={S.inputWrapper}>
+                            <Input
+                                inputLabel="닉네임"
+                                name="nickName"
+                                type="text"
+                                feedBackText={nickNameFeedbackText}
+                                onChange={e => {
+                                    handleNickNameChange(e);
+                                }}
+                                placeholder="변경할 닉네임을 입력해주세요."
+                                isValid={nickNameFeedbackTextStatus}
+                                value={profileDate?.nickname || ""}
+                            />
+
+                            <Button
+                                disabled={!isNickNameInputChaged}
+                                variant="secondary"
+                                onClick={() => {
+                                    clickNickNameDuplicate();
+                                }}
+                            >
+                                중복확인
+                            </Button>
+                        </div>
+                        <Dropdown
+                            inputLabel="공부 목적"
+                            options={PURPOSE_OPTIONS}
+                            onChange={value => {
+                                handlePurposeChange(value);
+                            }}
+                            value={profileDate?.purpose ?? "취업준비"}
+                        />
+
+                        <Input
+                            inputLabel="새 비밀번호"
+                            name="nickName"
+                            type="password"
+                            feedBackText={
+                                validatePassword(profileDate?.password ?? "")
+                                    ? ""
+                                    : "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다."
+                            }
+                            onChange={e => {
+                                handlePasswordChange(e);
+                            }}
+                            placeholder="비밀번호를 입력해 주세요."
+                            isValid={validatePassword(
+                                profileDate?.password ?? "",
+                            )}
+                        />
+                        <Input
+                            inputLabel="비밀번호 확인"
+                            name="nickName"
+                            type="password"
+                            feedBackText={
+                                validatePasswordConfirm(
+                                    profileDate?.password ?? "",
+                                    passwordConfirm,
+                                )
+                                    ? ""
+                                    : "비밀번호가 일치하지 않습니다."
+                            }
+                            onChange={e => {
+                                handlePasswordConfirmChange(e);
+                            }}
+                            placeholder="비밀번호를 한 번 더 입력해 주세요."
+                            isValid={validatePasswordConfirm(
+                                profileDate?.password ?? "",
+                                passwordConfirm,
+                            )}
+                        />
                     </div>
                     <div className={S.inputBoxLeft}>
-                        <div className={S.spanWrapper}>
-                            <span>개발 경력</span>
-                            <span>{profileDate?.career}</span>
-                        </div>
-                        <div className={S.spanWrapper}>
-                            <span>공부목적</span>
-                            <span>{profileDate?.purpose}</span>
-                        </div>
-                        <span>개발 스텍</span>
+                        <Dropdown
+                            inputLabel="개발 경력"
+                            options={CAREER_OPTIONS}
+                            onChange={value => {
+                                handleCareerChange(value);
+                            }}
+                            value={profileDate?.career ?? "경력 없음"}
+                        />
+                        <Input
+                            inputLabel="공부목표"
+                            name="goal"
+                            type="text"
+                            feedBackText=""
+                            onChange={e => {
+                                handleGoal(e);
+                            }}
+                            placeholder=""
+                            isValid={true}
+                            value={profileDate?.goal ?? ""}
+                        />
+
+                        <Input
+                            inputLabel="공부/사용 중인 스택(선택)"
+                            name="stacks"
+                            type="text"
+                            feedBackText=""
+                            onChange={e => {
+                                handleValueChange(e);
+                            }}
+                            placeholder="기술 스텍을 검색해 등록해 주세요."
+                            isValid={true}
+                            value={value}
+                        />
                         {!!stackOptions.length && (
                             <div className={S.stackWrapper}>
                                 {stackOptions?.map((stack, index) => (
@@ -280,9 +366,28 @@ function MyPage() {
                         )}
                     </div>
                 </div>
+                <div className={S.buttonWrapper}>
+                    <Button
+                        onClick={() => {
+                            navigator("/");
+                        }}
+                        variant="secondary"
+                    >
+                        취소
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            handleSaveChanges();
+                        }}
+                        variant="secondary"
+                        disabled={!hasChanges}
+                    >
+                        변경사항저장
+                    </Button>
+                </div>
             </div>
         </>
     );
 }
 
-export default MyPage;
+export default MyPageEdit;
