@@ -17,11 +17,8 @@ const router = createBrowserRouter([
             // 기존 routes가 children으로
             { index: true, element: <Home /> },
             { path: "DashBoard", element: <DashBoard /> },
-            {
-                path: "MyPage",
-                element: <MyPage />,
-                children: [{ path: "MyPageEdit", element: <MyPageEdit /> }],
-            },
+            { path: "mypage", element: <MyPage /> },
+            { path: "edit", element: <MyPageEdit /> },
             { path: "Ranking", element: <Ranking /> },
         ],
     },

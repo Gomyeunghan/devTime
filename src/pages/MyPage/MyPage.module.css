@@ -10,10 +10,25 @@
     color: #4b5563;
     position: relative;
 }
-
+.userData {
+    flex: 7;
+}
+.profileBox {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
 .spanWrapper {
     display: flex;
     flex-direction: column;
+}
+.spanWrapper :nth-child(1) {
+    color: #969da8;
+    font-size: 14px;
+    font-weight: 600;
+}
+.spanWrapper :nth-child(2) {
+    font-weight: 600;
 }
 .userTitle {
 }
@@ -33,4 +48,23 @@
     font-size: 24px;
     line-height: 30px;
     color: #023e99;
+}
+.bedge {
+    display: inline;
+    background-color: #f0f2f5;
+    padding: 4px 8px;
+    align-items: center;
+    border-radius: 5px;
+}
+.bedgeWapper {
+    margin-top: 4px;
+    display: flex;
+    gap: 4px;
+}
+.edit {
+    display: flex;
+    gap: 16px;
+}
+.editWrapper {
+    display: inline-block;
 }

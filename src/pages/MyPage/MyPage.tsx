@@ -1,24 +1,15 @@
-import Input from "@/components/Input/Input";
 import S from "./MyPage.module.css";
 import DefultProfile from "@assets/Profile.jpg";
-import Button from "@/components/Button/Button";
 import { useEffect, useRef, useState } from "react";
 import {
-    getParsingUrl,
     getProfile,
-    updateProfile,
-    type requsetImage,
     type responseGetProfile,
     type responseProfile,
 } from "@/api/profile";
-import Dropdown from "@/components/Dropdown/Dropdown";
-import { validatePassword, validatePasswordConfirm } from "@/utils/validation";
 import { debounce } from "@/utils/debounce";
 import { getStack } from "@/api/stack";
-import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
 import { checkNicknameDuplicate } from "@/api/signup";
-import { useNavigate } from "react-router-dom";
-import ProfileImage from "@/components/ProfileImage/ProfileImage";
+import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 export interface StackItem {
     id: number;
@@ -35,33 +26,9 @@ function MyPage() {
     const [profileDate, setProfileDate] = useState<responseProfile | null>(
         null,
     );
-    const [originalProfile, setOriginalProfile] = useState<responseProfile>();
-    const [passwordConfirm, setPasswordConfirm] = useState<string>("");
-    const [stackOptions, setStackOptions] = useState<StackItem[]>([]);
-    const [nickNameFeedbackText, setNickNameFeedbackText] =
-        useState<string>("");
-    const [nickNameFeedbackTextStatus, setNickNameFeedbackTextStatus] =
-        useState<boolean>(true);
-    const [isNickNameInputChaged, setIsNickNameInputChaged] =
-        useState<boolean>(false);
-    const [value, setValue] = useState<string>("");
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
     const { isLoggedIn } = useAuthStore();
 
     const navigator = useNavigate();
-
-    const debouncedSearch = useRef(
-        debounce(async (keyword: string) => {
-            if (!keyword) {
-                setStackOptions([]);
-                return;
-            }
-            await getStack<StackResult>(keyword).then(res =>
-                setStackOptions(res.results),
-            );
-            console.log(keyword, "keyword");
-        }, 500),
-    ).current;
 
     useEffect(() => {
         if (!isLoggedIn) navigator("/");
@@ -83,12 +50,6 @@ function MyPage() {
                     email: fetchProifle.email,
                 };
                 setProfileDate(fetched);
-                setOriginalProfile(fetched);
-                if (fetched.profileImage) {
-                    setPreviewImage(
-                        `https://dev-time-bucket.s3.ap-northeast-2.amazonaws.com/${fetched.profileImage}`,
-                    );
-                }
             } catch (error) {
                 console.error(error);
             }
@@ -97,133 +58,16 @@ function MyPage() {
         responesProfile();
     }, []);
 
-    const handlePurposeChange = (value: string) => {
-        setProfileDate(prev =>
-            prev
-                ? { ...prev, purpose: value as responseProfile["purpose"] }
-                : prev,
-        );
-    };
-    const handleCareerChange = (value: string) => {
-        setProfileDate(prev =>
-            prev
-                ? { ...prev, career: value as responseProfile["career"] }
-                : prev,
-        );
-        console.log(profileDate);
-    };
-    const handleGoal = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setProfileDate(prev =>
-            prev ? { ...prev, goal: e.target.value } : prev,
-        );
-    };
-
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setProfileDate(prev => (prev ? { ...prev, password: value } : prev));
-        console.log(value);
-    };
-
-    const handlePasswordConfirmChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        setPasswordConfirm(e.target.value);
-    };
-    const handleNickNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setProfileDate(prev =>
-            prev ? { ...prev, nickname: e.target.value } : prev,
-        );
-        setIsNickNameInputChaged(true);
-    };
-
-    const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(e.target.value);
-        debouncedSearch(e.target.value);
-    };
-
-    const hasChanges =
-        JSON.stringify(profileDate) !== JSON.stringify(originalProfile) ||
-        !!passwordConfirm;
-
-    const clickNickNameDuplicate = async () => {
-        try {
-            if (!profileDate?.nickname) return;
-            const result = await checkNicknameDuplicate(profileDate?.nickname);
-            console.log(result);
-            setNickNameFeedbackText(result.message);
-            setNickNameFeedbackTextStatus(result.available);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const handleSaveChanges = async () => {
-        if (!profileDate) return;
-        const { nickname, ...reset } = profileDate;
-        const payload = isNickNameInputChaged ? profileDate : reset;
-        try {
-            await updateProfile(payload);
-            setOriginalProfile(profileDate);
-            setPasswordConfirm("");
-            alert("프로필이 성공적으로 업데이트되었습니다.");
-            navigator("/");
-        } catch (error) {
-            console.error("프로필 업데이트 중 오류 발생:", error);
-            alert("프로필 업데이트에 실패했습니다. 다시 시도해주세요.");
-        }
-    };
-    const addStack = (stackIndex: number) => {
-        setProfileDate(prev => {
-            if (!prev) return prev;
-            const selectedStack = stackOptions[stackIndex];
-            console.log(stackOptions[stackIndex], "selectedStack");
-            if (!selectedStack) return prev;
-            const isAlreadyAdded = prev.techStacks?.includes(
-                selectedStack.name,
-            );
-            if (isAlreadyAdded) return prev;
-            const updatedStack = prev.techStacks
-                ? [...prev.techStacks, selectedStack.name]
-                : [selectedStack.name];
-
-            return { ...prev, techStacks: updatedStack };
-        });
-        setValue("");
-        setStackOptions([]);
-    };
-    const handleImageChange = async (
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setPreviewImage(URL.createObjectURL(file));
-        const imageInfo: requsetImage = {
-            fileName: file.name,
-            contentType: file.type,
-        };
-        await handleSaveProfileImage(imageInfo, file);
-    };
-    const handleSaveProfileImage = async (
-        updateImageFile: requsetImage,
-        file: File,
-    ) => {
-        const { presignedUrl, key } = await getParsingUrl(updateImageFile);
-        await fetch(presignedUrl, {
-            method: "PUT",
-            headers: { "Content-Type": updateImageFile.contentType },
-            body: file,
-        });
-        setProfileDate(prev => (prev ? { ...prev, profileImage: key } : prev));
-    };
-
-    console.log(profileDate?.email);
-
     return (
         <>
             <div className={S.container}>
                 <div className={S.imgBox}>
                     <img
-                        src={`https://dev-time-bucket.s3.ap-northeast-2.amazonaws.com/${profileDate?.profileImage}`}
+                        src={
+                            profileDate?.profileImage
+                                ? `https://dev-time-bucket.s3.ap-northeast-2.amazonaws.com/${profileDate?.profileImage}`
+                                : DefultProfile
+                        }
                         alt="프로필이미지"
                         style={{
                             width: "160px",
@@ -232,7 +76,7 @@ function MyPage() {
                         }}
                     />
                 </div>
-                <div className={S.userDat}>
+                <div className={S.userData}>
                     <div className={S.userDataHeader}>
                         <span className={S.nickname}>
                             {profileDate?.nickname}
@@ -241,11 +85,11 @@ function MyPage() {
                             {profileDate?.purpose}
                         </span>
                     </div>
-                    <div className={S.spanWrapper}>
-                        <span>이메일 주소</span>
-                        <span>{profileDate?.email}</span>
-                    </div>
-                    <div className={S.inputBoxLeft}>
+                    <div className={S.profileBox}>
+                        <div className={S.spanWrapper}>
+                            <span>이메일 주소</span>
+                            <span>{profileDate?.email}</span>
+                        </div>
                         <div className={S.spanWrapper}>
                             <span>개발 경력</span>
                             <span>{profileDate?.career}</span>
@@ -254,31 +98,43 @@ function MyPage() {
                             <span>공부목적</span>
                             <span>{profileDate?.purpose}</span>
                         </div>
-                        <span>개발 스텍</span>
-                        {!!stackOptions.length && (
-                            <div className={S.stackWrapper}>
-                                {stackOptions?.map((stack, index) => (
-                                    <button
-                                        key={stack.id}
-                                        onClick={() => addStack(index)}
-                                    >
-                                        <span>{stack.name}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                        {!!profileDate?.techStacks?.length && (
-                            <div className={S.bedgeWapper}>
-                                {profileDate?.techStacks?.map(
-                                    (stack, index) => (
-                                        <div className={S.bedge} key={index}>
-                                            <span>{stack}</span>
-                                        </div>
-                                    ),
-                                )}
-                            </div>
-                        )}
+                        <div>
+                            <span>개발 스텍</span>
+                            {!!profileDate?.techStacks?.length && (
+                                <div className={S.bedgeWapper}>
+                                    {profileDate?.techStacks?.map(
+                                        (stack, index) => (
+                                            <div
+                                                className={S.bedge}
+                                                key={index}
+                                            >
+                                                <span>{stack}</span>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
+                </div>
+                <div className={S.editWrapper}>
+                    <Link className={S.edit} to={"/edit"}>
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="#717887"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M14.9017 4.27001C15.6629 3.50843 16.8972 3.50791 17.659 4.26885L19.7295 6.33692C20.4916 7.09817 20.4921 8.33315 19.7306 9.09504L9.95693 18.8741C9.68533 19.1458 9.33951 19.3313 8.96287 19.4072L4.59689 20.2869C4.35061 20.3365 4.09585 20.2595 3.91826 20.0819C3.74067 19.9042 3.66384 19.6494 3.7136 19.4031L4.59491 15.0423C4.67087 14.6664 4.85596 14.3213 5.12703 14.0501L14.9017 4.27001ZM16.599 5.33011C16.4232 5.15451 16.1383 5.15463 15.9627 5.33038L14.4258 6.86811L17.1314 9.57376L18.6697 8.03467C18.8454 7.85885 18.8453 7.57386 18.6694 7.39818L16.599 5.33011ZM16.0711 10.6347L13.3654 7.92906L6.18798 15.1104C6.12543 15.173 6.08271 15.2527 6.06518 15.3394L5.40757 18.5934L8.66658 17.9367C8.7535 17.9192 8.83331 17.8764 8.89598 17.8137L16.0711 10.6347Z"
+                                fill="currentColor"
+                            />
+                        </svg>
+                        <span>회원 정보수정</span>
+                    </Link>
                 </div>
             </div>
         </>
