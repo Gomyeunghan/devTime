@@ -1,5 +1,5 @@
 import Input from "@/components/Input/Input";
-import S from "./SignUp.module.css";
+import S from "./Signup.module.css";
 import Logo from "@assets/Logo_white.png";
 import Button from "@/components/Button/Button";
 import { useState } from "react";
