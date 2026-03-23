@@ -97,10 +97,6 @@ function Login() {
         }
     };
 
-    const onClick = () => {
-        setShowModal(!isShowModal);
-    };
-
     return (
         <>
             <div className={S.container}>

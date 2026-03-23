@@ -1,7 +1,6 @@
 import S from "./TodoInput.module.css";
 import Edit from "@/assets/edit.svg";
 import Delete from "@/assets/delete.svg";
-import { useState } from "react";
 
 interface TodoInputProps {
     isAdd: boolean;

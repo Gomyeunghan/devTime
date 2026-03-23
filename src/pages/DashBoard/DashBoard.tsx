@@ -135,7 +135,7 @@ function DashBoard() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [todoItem, setTodoItem] = useState<detailStudyLog | null>(null);
 
-    const handleModal = async (id: string) => {
+    const handleModal = async () => {
         setIsOpen(!isOpen);
     };
     const fetchStudyDetail = async (id: string) => {
@@ -459,7 +459,7 @@ function DashBoard() {
                             <tr
                                 key={record.id}
                                 onClick={() => {
-                                    handleModal(record.id);
+                                    handleModal();
                                     fetchStudyDetail(record.id);
                                 }}
                             >

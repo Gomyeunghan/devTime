@@ -110,9 +110,7 @@ function Signup() {
                 : "DUPLICATE";
             setNicknameStatus(status);
             setNicknameMessage(result.message);
-        } catch (error) {
-            setNicknameStatus(error);
-        }
+        } catch (error) {}
     };
     const nicknameFeedbackMessage =
         nicknameStatus === "AVAILABLE" || nicknameStatus === "DUPLICATE"

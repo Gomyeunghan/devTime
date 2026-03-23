@@ -1,6 +1,5 @@
 import Input from "@/components/Input/Input";
 import S from "./MyPageEdit.module.css";
-import DefultProfile from "@assets/Profile.jpg";
 import Button from "@/components/Button/Button";
 import { useEffect, useRef, useState } from "react";
 import {

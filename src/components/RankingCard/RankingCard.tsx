@@ -1,9 +1,9 @@
-import type { Ranking, TechStack } from "@/api/rank";
+import type { RankingData, TechStack } from "@/api/rank";
 import clsx from "clsx";
 import S from "./RankingCard.module.css";
 import profile from "@assets/Profile.jpg";
 
-function RankingCard({ user }: { user: Ranking }) {
+function RankingCard({ user }: { user: RankingData }) {
     const averageMinutes = Math.round(user.averageStudyTime / 1000 / 60);
     const averageHours = Math.floor(averageMinutes / 60);
     const remainingMinutes = averageMinutes % 60;
@@ -51,7 +51,7 @@ function RankingCard({ user }: { user: Ranking }) {
                 <div className={S.stacksWrapper}>
                     {user.profile.techStacks
                         .slice(0, 5)
-                        ?.map((stack: TechStack, index) => {
+                        ?.map((stack: TechStack) => {
                             return (
                                 <span className={S.stack} key={stack.id}>
                                     {stack.name}
