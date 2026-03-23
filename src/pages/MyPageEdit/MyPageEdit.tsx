@@ -220,14 +220,6 @@ function MyPageEdit() {
             <div className={S.container}>
                 <div className={S.imgBox}>
                     <span>프로필 이미지</span>
-                    <button
-                        onClick={() => {
-                            console.log(profileDate);
-                        }}
-                    >
-                        ddd
-                    </button>
-                    {}
                     <ProfileImage
                         previewImage={previewImage}
                         handleImageChange={handleImageChange}
@@ -265,7 +257,7 @@ function MyPageEdit() {
                             onChange={value => {
                                 handlePurposeChange(value);
                             }}
-                            value={profileDate?.purpose ?? "취업준비"}
+                            value={profileDate?.purpose ?? "취업 준비"}
                         />
 
                         <Input

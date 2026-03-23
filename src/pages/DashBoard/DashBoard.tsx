@@ -184,26 +184,26 @@ function DashBoard() {
                             studyTimeHours: d.studyTimeHours,
                         });
                     }
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const allDays: HeatmapCell[] = [];
-                    for (let i = 364; i >= 0; i--) {
-                        const date = new Date(today);
-                        date.setDate(today.getDate() - i);
-                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-                        const apiDay = dataMap.get(dateStr);
-                        allDays.push({
-                            date,
-                            colorLevel: apiDay
-                                ? getColorLevel(apiDay.studyTimeHours)
-                                : 0,
-                            studyTimeHours: apiDay?.studyTimeHours ?? 0,
-                        });
-                    }
-                    const builtWeeks = buildWeeksFromData(allDays);
-                    setWeeks(builtWeeks);
-                    setMonthLabels(getMonthLabels(builtWeeks));
                 }
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const allDays: HeatmapCell[] = [];
+                for (let i = 364; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() - i);
+                    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                    const apiDay = dataMap.get(dateStr);
+                    allDays.push({
+                        date,
+                        colorLevel: apiDay
+                            ? getColorLevel(apiDay.studyTimeHours)
+                            : 0,
+                        studyTimeHours: apiDay?.studyTimeHours ?? 0,
+                    });
+                }
+                const builtWeeks = buildWeeksFromData(allDays);
+                setWeeks(builtWeeks);
+                setMonthLabels(getMonthLabels(builtWeeks));
             } catch {
                 setRecords([]);
                 setWeeks([]);

@@ -61,7 +61,7 @@ function MyPage() {
     return (
         <>
             <div className={S.container}>
-                <div className={S.imgBox}>
+                <div>
                     <img
                         src={
                             profileDate?.profileImage
