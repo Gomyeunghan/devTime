@@ -1,5 +1,5 @@
 import S from "./Timer.module.css";
-import Start from "@assets/start.svg";
+import Start from "@assets/Start.svg";
 import StartDisabled from "@assets/StartDisabled.svg";
 import Pause from "@assets/Pause.svg";
 import Finish from "@assets/Finish.svg";
