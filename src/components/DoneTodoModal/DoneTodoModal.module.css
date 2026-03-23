@@ -1,0 +1,39 @@
+.mainText {
+    font-weight: 700;
+    color: #023e99;
+}
+
+.listWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 492px;
+}
+
+.list {
+    background: var(--primary-color);
+    padding: 24px;
+    color: white;
+    width: 568px;
+    height: 72px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+.listCompleted {
+    background: #e5e7eb;
+    color: #969da8;
+}
+.reviewTitle {
+    font-size: 14px;
+    line-height: 18px;
+}
+.review {
+    margin-top: 4px;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 24px;
+}
+.buttonWrapper {
+    display: flex;
+}

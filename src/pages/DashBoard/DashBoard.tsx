@@ -7,8 +7,13 @@ import {
     type StudyStatsResponse,
     type StudyLog,
     deleteStudyLog,
+    getStudyLogDetail,
+    type detailStudyLog,
 } from "@/api/dashboard";
 import Trash from "@assets/trash.svg";
+import DoneTodoModal from "@/components/DoneTodoModal/DonTodoModal";
+import useAuthStore from "@/store/authStore";
+import { useNavigate } from "react-router-dom";
 
 const BAR_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const WEEK_DAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -127,9 +132,30 @@ function DashBoard() {
     const [studyStats, setStudyStats] = useState<StudyStatsResponse | null>(
         null,
     );
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [todoItem, setTodoItem] = useState<detailStudyLog | null>(null);
+
+    const handleModal = async (id: string) => {
+        setIsOpen(!isOpen);
+    };
+    const fetchStudyDetail = async (id: string) => {
+        try {
+            const response: detailStudyLog = await getStudyLogDetail(id);
+            if (!response) return;
+            setTodoItem(response);
+        } catch (error) {
+            console.error("Failed to fetch study detail:", error);
+        }
+    };
+    const { isLoggedIn } = useAuthStore();
+    const navigator = useNavigate();
 
     const totalPages = Math.max(1, Math.ceil(records.length / PAGE_SIZE));
     const pageRecords = records.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    useEffect(() => {
+        if (!isLoggedIn) navigator("/");
+    }, [isLoggedIn]);
 
     useEffect(() => {
         setPage(prev => Math.min(prev, totalPages));
@@ -158,26 +184,26 @@ function DashBoard() {
                             studyTimeHours: d.studyTimeHours,
                         });
                     }
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const allDays: HeatmapCell[] = [];
-                    for (let i = 364; i >= 0; i--) {
-                        const date = new Date(today);
-                        date.setDate(today.getDate() - i);
-                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-                        const apiDay = dataMap.get(dateStr);
-                        allDays.push({
-                            date,
-                            colorLevel: apiDay
-                                ? getColorLevel(apiDay.studyTimeHours)
-                                : 0,
-                            studyTimeHours: apiDay?.studyTimeHours ?? 0,
-                        });
-                    }
-                    const builtWeeks = buildWeeksFromData(allDays);
-                    setWeeks(builtWeeks);
-                    setMonthLabels(getMonthLabels(builtWeeks));
                 }
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const allDays: HeatmapCell[] = [];
+                for (let i = 364; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() - i);
+                    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                    const apiDay = dataMap.get(dateStr);
+                    allDays.push({
+                        date,
+                        colorLevel: apiDay
+                            ? getColorLevel(apiDay.studyTimeHours)
+                            : 0,
+                        studyTimeHours: apiDay?.studyTimeHours ?? 0,
+                    });
+                }
+                const builtWeeks = buildWeeksFromData(allDays);
+                setWeeks(builtWeeks);
+                setMonthLabels(getMonthLabels(builtWeeks));
             } catch {
                 setRecords([]);
                 setWeeks([]);
@@ -430,7 +456,13 @@ function DashBoard() {
                     </thead>
                     <tbody>
                         {pageRecords.map((record, i) => (
-                            <tr key={record.id}>
+                            <tr
+                                key={record.id}
+                                onClick={() => {
+                                    handleModal(record.id);
+                                    fetchStudyDetail(record.id);
+                                }}
+                            >
                                 <td>{record.date}</td>
                                 <td className={S.goalCell}>
                                     {record.todayGoal}
@@ -501,6 +533,13 @@ function DashBoard() {
                     </button>
                 </div>
             </div>
+            {isOpen && todoItem && (
+                <DoneTodoModal
+                    data={todoItem.data}
+                    isOpen={isOpen}
+                    handleModal={() => setIsOpen(!isOpen)}
+                />
+            )}
         </div>
     );
 }

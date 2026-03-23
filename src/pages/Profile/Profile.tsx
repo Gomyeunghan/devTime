@@ -12,13 +12,15 @@ import {
 } from "@/api/profile";
 import Input from "@/components/Input/Input";
 import { debounce } from "@/utils/debounce";
-import type { StackItem, StackResult } from "../MyPage/MyPage";
+import type { StackItem, StackResult } from "../MyPageEdit/MyPageEdit";
 import { getStack } from "@/api/stack";
 import Button from "@/components/Button/Button";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 import { CAREER_OPTIONS, PURPOSE_OPTIONS } from "@/api/profile";
 import ProfileImage from "@/components/ProfileImage/ProfileImage";
+import BaseModal from "@/components/BaseModal/BaseModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 function Profile() {
     const [profileDate, setProfileDate] = useState<requsetProfile | null>(null);
@@ -27,6 +29,8 @@ function Profile() {
     const [value, setValue] = useState<string>("");
     const { isLoggedIn, isFirstLogin } = useAuthStore();
     const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const queryClient = useQueryClient();
 
     const navigate = useNavigate();
     const debouncedSearch = useRef(
@@ -148,6 +152,7 @@ function Profile() {
         if (!profileDate) return;
         await postProfile();
         await updateProfile(profileDate);
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
         navigate("/");
     };
 
@@ -254,6 +259,31 @@ function Profile() {
                     </div>
                 </div>
             </div>
+            <BaseModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                }}
+            >
+                <BaseModal.Header>프로필 설정을 건너뛸까요?</BaseModal.Header>
+                <BaseModal.Body>
+                    프로필 설정하지 않을 경우 일부 기능 사용에 제한이 생길 수
+                    있습니다. 그래도 프로필 설정을 건너뛰시겠습니까?
+                </BaseModal.Body>
+                <BaseModal.Footer>
+                    <Button onClick={handleSkip} variant="secondary">
+                        건너뛰기
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            setIsModalOpen(false);
+                        }}
+                        variant="primary"
+                    >
+                        계속 설정하기
+                    </Button>
+                </BaseModal.Footer>
+            </BaseModal>
         </div>
     );
 }
