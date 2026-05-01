@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "jsx": "react-jsx",
+        "types": ["jest"],
+        "lib": ["es2017", "dom"]
+    }
+}

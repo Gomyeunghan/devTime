@@ -7,7 +7,7 @@ function Button({
     variant,
 }: {
     children: React.ReactNode;
-    onClick?: any;
+    onClick?: () => void;
     disabled?: boolean;
     variant: "primary" | "secondary";
 }) {
